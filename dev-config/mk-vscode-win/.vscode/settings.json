@@ -1,0 +1,8 @@
+{
+	"material-icon-theme.folders.associations": {
+		"build": "dist",
+		"src": "src",
+		"src/main": "app",
+		"src/test": "test"
+	}
+}

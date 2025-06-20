@@ -1,0 +1,30 @@
+{
+	"name": "@mkacct/cdif",
+	"version": "0.1.0",
+	"author": {"name": "MK", "url": "https://mkps.app"},
+	"description": "cDIF parser/serializer for TypeScript",
+	"keywords": ["cDIF", "parser", "serializer"],
+	"repository": {"type": "git", "url": "git+https://github.com/mkacct/cdif-ts.git"},
+	"bugs": {"url": "https://github.com/mkacct/cdif-ts/issues"},
+	"license": "LGPL-3.0-or-later",
+	"type": "module",
+	"files": ["build/main"],
+	"main": "build/main/main.js",
+	"types": "build/main/main.d.ts",
+	"scripts": {
+		"prebuild": "rimraf build",
+		"build": "npx tsc",
+		"test": "node --test \"build/test/**/!(*.sub).test.js\""
+	},
+	"dependencies": {
+		"@mkacct/ts-util": "^4.1.0"
+	},
+	"devDependencies": {
+		"@types/eslint": "^9.6.1",
+		"@types/node": "^24.0.1",
+		"eslint": "^9.28.0",
+		"rimraf": "^6.0.1",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.34.0"
+	}
+}
