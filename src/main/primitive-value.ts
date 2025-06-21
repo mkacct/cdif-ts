@@ -282,7 +282,8 @@ export class CDIFString extends CDIFPrimitiveValue {
 		if (!match) {throw new PrimitiveValueError();}
 		const {quote, text} = match.groups!;
 		const isVerbatim: boolean = quote === "`";
-		return CDIFString.splitIntoEntities(text, isVerbatim, quote);
+		const entities: string[] = CDIFString.splitIntoEntities(text, isVerbatim, quote);
+		return entities;
 	}
 
 	private static parseBlockString(cdifText: string): string[] {
