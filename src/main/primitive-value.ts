@@ -71,9 +71,9 @@ function checkSign(cdifText: string): {isNegative: boolean, withoutSign: string}
 	};
 }
 
-class CDIFInteger extends CDIFPrimitiveValue {
+export class CDIFInteger extends CDIFPrimitiveValue {
 
-	private constructor(private readonly value: bigint, cdifVersion: number) {
+	public constructor(private readonly value: bigint, cdifVersion: number) {
 		super(cdifVersion);
 	}
 
@@ -93,9 +93,9 @@ class CDIFInteger extends CDIFPrimitiveValue {
 
 }
 
-class CDIFFloat extends CDIFPrimitiveValue {
+export class CDIFFloat extends CDIFPrimitiveValue {
 
-	private constructor(
+	public constructor(
 		private readonly isNegative: boolean, private readonly significand: string, private readonly exponent: bigint,
 		cdifVersion: number
 	) {
@@ -143,9 +143,9 @@ class CDIFFloat extends CDIFPrimitiveValue {
 
 }
 
-class CDIFInfinite extends CDIFPrimitiveValue {
+export class CDIFInfinite extends CDIFPrimitiveValue {
 
-	private constructor(private readonly isNegative: boolean, cdifVersion: number) {
+	public constructor(private readonly isNegative: boolean, cdifVersion: number) {
 		super(cdifVersion);
 	}
 
@@ -215,9 +215,9 @@ function getEscapeSeqExpectedLength(idChar: string): number {
 	]);
 }
 
-class CDIFCharacter extends CDIFPrimitiveValue {
+export class CDIFCharacter extends CDIFPrimitiveValue {
 
-	private constructor(private readonly entity: string, cdifVersion: number) {
+	public constructor(private readonly entity: string, cdifVersion: number) {
 		super(cdifVersion);
 		this.entity = canonicalizeCharEntity(entity, "'");
 	}
@@ -249,9 +249,9 @@ function splitIntoUnicodeChars(str: string): string[] {
 	return str.match(/./gus) ?? [];
 }
 
-class CDIFString extends CDIFPrimitiveValue {
+export class CDIFString extends CDIFPrimitiveValue {
 
-	private constructor(private readonly entities: string[], cdifVersion: number) {
+	public constructor(private readonly entities: string[], cdifVersion: number) {
 		super(cdifVersion);
 		this.entities = entities.map((ent: string): string => canonicalizeCharEntity(ent, "\""));
 	}
@@ -390,9 +390,9 @@ class CDIFString extends CDIFPrimitiveValue {
 
 }
 
-class CDIFBoolean extends CDIFPrimitiveValue {
+export class CDIFBoolean extends CDIFPrimitiveValue {
 
-	private constructor(private readonly value: boolean, cdifVersion: number) {
+	public constructor(private readonly value: boolean, cdifVersion: number) {
 		super(cdifVersion);
 	}
 
@@ -410,9 +410,9 @@ class CDIFBoolean extends CDIFPrimitiveValue {
 
 }
 
-class CDIFNull extends CDIFPrimitiveValue {
+export class CDIFNull extends CDIFPrimitiveValue {
 
-	private constructor(cdifVersion: number) {
+	public constructor(cdifVersion: number) {
 		super(cdifVersion);
 	}
 
