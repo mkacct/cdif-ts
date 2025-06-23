@@ -30,8 +30,6 @@ export class CDIFCollection extends CDIFStructure {
 		this.data = data.slice();
 	}
 
-	// TODO: to cdif text
-
 }
 
 export class CDIFObject extends CDIFStructure {
@@ -41,12 +39,12 @@ export class CDIFObject extends CDIFStructure {
 
 	public constructor(data: ReadonlyMap<string, CDIFValue>, type?: string) {
 		super(type);
-		for (const [property] of data) {
+		const map: Map<string, CDIFValue> = new Map();
+		for (const [property, value] of data) {
 			if (!isValidName(property)) {throw new CDIFSyntaxError(`Invalid object property name: "${property}"`);}
+			map.set(property, value);
 		}
-		this.data = new Map(data);
+		this.data = map;
 	}
-
-	// TODO: to cdif text
 
 }
