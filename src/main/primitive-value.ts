@@ -1,13 +1,12 @@
 import {between, isValue} from "@mkacct/ts-util";
 import Arrays from "@mkacct/ts-util/arrays";
 import sw from "@mkacct/ts-util/switch";
-import {CDIFValue} from "./cdif.js";
 import {CDIFSyntaxError} from "./errors.js";
 
 /**
  * A parsed cDIF primitive value.
  */
-export default abstract class CDIFPrimitiveValue implements CDIFValue {
+export default abstract class CDIFPrimitiveValue {
 
 	/** The major cDIF version */
 	public readonly cdifVersion: number;
@@ -19,7 +18,7 @@ export default abstract class CDIFPrimitiveValue implements CDIFValue {
 	/**
 	 * @returns the cDIF text representation of the primitive value
 	 */
-	public abstract toCdifText(): string;
+	public abstract get cdifText(): string;
 
 }
 
@@ -81,7 +80,7 @@ export class CDIFInteger extends CDIFPrimitiveValue {
 		super(cdifVersion);
 	}
 
-	public override toCdifText(): string {
+	public override get cdifText(): string {
 		return this.value.toString();
 	}
 
@@ -107,7 +106,7 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {throw new Error("Invalid significand");}
 	}
 
-	public override toCdifText(): string {
+	public override get cdifText(): string {
 		return `${this.isNegative ? "-" : ""}${this.significand}${(this.exponent !== 0n) ? `e${this.exponent.toString()}` : ""}`;
 	}
 
@@ -153,7 +152,7 @@ export class CDIFInfinite extends CDIFPrimitiveValue {
 		super(cdifVersion);
 	}
 
-	public override toCdifText(): string {
+	public override get cdifText(): string {
 		return `${this.isNegative ? "-" : ""}infinity`;
 	}
 
@@ -226,7 +225,7 @@ export class CDIFCharacter extends CDIFPrimitiveValue {
 		this.entity = canonicalizeCharEntity(entity, "'");
 	}
 
-	public override toCdifText(): string {
+	public override get cdifText(): string {
 		return `'${this.entity}'`;
 	}
 
@@ -260,7 +259,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 		this.entities = entities.map((ent: string): string => canonicalizeCharEntity(ent, "\""));
 	}
 
-	public override toCdifText(): string {
+	public override get cdifText(): string {
 		return `"${this.entities.join("")}"`;
 	}
 
@@ -401,7 +400,7 @@ export class CDIFBoolean extends CDIFPrimitiveValue {
 		super(cdifVersion);
 	}
 
-	public override toCdifText(): string {
+	public override get cdifText(): string {
 		return this.value ? "true" : "false";
 	}
 
@@ -421,7 +420,7 @@ export class CDIFNull extends CDIFPrimitiveValue {
 		super(cdifVersion);
 	}
 
-	public override toCdifText(): string {
+	public override get cdifText(): string {
 		return "null";
 	}
 

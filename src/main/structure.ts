@@ -6,7 +6,7 @@ import {isValidName, isValidTypeId} from "./identifiers.js";
 /**
  * Either a cDIF collection or object.
  */
-export default abstract class CDIFStructure implements CDIFValue {
+export default abstract class CDIFStructure {
 
 	/** The structure's type name, or `undefined` if it is anonymous. */
 	protected readonly type?: string = undefined;
@@ -17,11 +17,6 @@ export default abstract class CDIFStructure implements CDIFValue {
 			this.type = type;
 		}
 	}
-
-	/**
-	 * @returns the cDIF text representation of the structure
-	 */
-	public abstract toCdifText(): string;
 
 }
 
@@ -35,7 +30,7 @@ export class CDIFCollection extends CDIFStructure {
 		this.data = data.slice();
 	}
 
-	// TODO: toCdifText()
+	// TODO: to cdif text
 
 }
 
@@ -52,6 +47,6 @@ export class CDIFObject extends CDIFStructure {
 		this.data = new Map(data);
 	}
 
-	// TODO: toCdifText()
+	// TODO: to cdif text
 
 }

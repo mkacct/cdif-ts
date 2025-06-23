@@ -4,8 +4,13 @@ import {CDIFError} from "./errors.js";
 import {FileOptions, formatFile} from "./file-formatter.js";
 import {CDIFOptions, parseOptions, SerializerOptions} from "./options.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
+import CDIFStructure from "./structure.js";
 
+/** Latest cDIF major version known to this implementation */
 export const CDIF_LATEST: number = 1;
+
+/** A cDIF value, which can be either a primitive value or a structure. */
+export type CDIFValue = CDIFPrimitiveValue | CDIFStructure;
 
 /**
  * Provides functions to parse and serialize cDIF data.
@@ -40,7 +45,7 @@ export default class CDIF {
 	public serialize(value: unknown): string {
 		const encodedValue: CDIFValue | undefined = encodeCdifValue(null, value, this.serializerOptions, this.cdifVersion);
 		if (!isValue(encodedValue)) {throw new CDIFError("root value was omitted");}
-		return encodedValue.toCdifText();
+		// TODO: return cdif text
 	}
 
 	/**
@@ -62,9 +67,4 @@ export default class CDIF {
 		return createPrimVal(cdifText, this.cdifVersion);
 	}
 
-}
-
-/** A cDIF value, which can be either a primitive value or a structure. */
-export interface CDIFValue {
-	toCdifText(): string;
 }

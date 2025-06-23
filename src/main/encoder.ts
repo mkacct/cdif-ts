@@ -67,7 +67,7 @@ function encodeCdifStructure(
 ): CDIFStructure {
 	if (Array.isArray(obj)) {
 		const data: CDIFValue[] = [];
-		for (const [key, value] of (obj as unknown[]).entries()) {
+		for (const [key, value] of (obj as unknown[]).entries()) { // enumerable own properties only
 			const encodedValue = encodeCdifValue(key, value, options, cdifVersion);
 			if (isValue(encodedValue)) {
 				data.push(encodedValue);
@@ -79,7 +79,7 @@ function encodeCdifStructure(
 		return new CDIFCollection(data, type);
 	} else {
 		const data = new Map<string, CDIFValue>();
-		for (const [key, value] of Object.entries(obj) as [string, unknown][]) {
+		for (const [key, value] of Object.entries(obj) as [string, unknown][]) { // enumerable own properties only
 			const encodedValue = encodeCdifValue(key, value, options, cdifVersion);
 			if (isValue(encodedValue)) {
 				data.set(key, encodedValue);
