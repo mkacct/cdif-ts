@@ -73,7 +73,7 @@ function encodeCdifStructure(
 			if (isValue(encodedValue)) {
 				data.push(encodedValue);
 			} else {
-				if (options.strict) {throw new CDIFError(`collection value was omitted`);}
+				if (options.strict) {throw new CDIFError(`Collection value was omitted`);}
 				data.push(new CDIFNull(cdifVersion));
 			}
 		}
@@ -111,7 +111,7 @@ function encodeCdifPrimitiveValue(
 		case "undefined": {return undefined;}
 		case "number": {
 			if (isNaN(value)) {
-				if (options.strict) {throw new CDIFTypeError(`cannot serialize NaN`);}
+				if (options.strict) {throw new CDIFTypeError(`Cannot serialize NaN`);}
 				return new CDIFNull(cdifVersion);
 			}
 			if (!isFinite(value)) {
@@ -129,29 +129,29 @@ function encodeCdifPrimitiveValue(
 			return new CDIFBoolean(value, cdifVersion);
 		}
 		case "symbol": {
-			if (options.strict) {throw new CDIFTypeError(`cannot serialize symbol`);}
+			if (options.strict) {throw new CDIFTypeError(`Cannot serialize symbol`);}
 			return undefined;
 		}
 		case "function": {
-			if (options.strict) {throw new CDIFTypeError(`cannot serialize function`);}
+			if (options.strict) {throw new CDIFTypeError(`Cannot serialize function`);}
 			return undefined;
 		}
 		case "object": { // null
 			if (value === null) {return new CDIFNull(cdifVersion);}
-			throw new TypeError(`attempted to serialize object as primitive value`);
+			throw new TypeError(`Attempted to serialize object as primitive value`);
 		}
 	}
 }
 
 function encodeCdifFloat(strRep: string, cdifVersion: number): CDIFFloat {
 	const match = strRep.match(/^(?<sign>[+-])?(?<significand>(?:0|[1-9]\d*)(?:\.\d*[1-9])?)(?:e(?<exponent>[+-]?\d+))?$/us);
-	if (!match) {throw new Error(`failed to parse floating point representation: "${strRep}"`);}
+	if (!match) {throw new Error(`Failed to parse floating point representation: "${strRep}"`);}
 	const {sign, significand, exponent} : {
 		sign?: string;
 		significand?: string;
 		exponent?: string;
 	} = match.groups!;
-	if (!significand) {throw new Error(`floating point representation missing significand: "${strRep}"`);}
+	if (!significand) {throw new Error(`Floating point representation missing significand: "${strRep}"`);}
 	return new CDIFFloat(sign === "-", significand, BigInt(exponent), cdifVersion);
 }
 
@@ -172,7 +172,7 @@ function encodeCdifString(str: string, cdifVersion: number): CDIFString {
 				return sw(hex.length, [
 					[(len) => between(len, 0, 4), () => "\\u" + hex.padStart(4, "0")],
 					[(len) => between(len, 5, 8), () => "\\U" + hex.padStart(8, "0")],
-					[sw.DEFAULT, () => {throw new Error(`unexpectedly large character code point: ${hex}`);}]
+					[sw.DEFAULT, () => {throw new Error(`Unexpectedly large code point: ${hex}`);}]
 				]);
 			}]
 		]));

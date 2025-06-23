@@ -23,6 +23,22 @@ export interface SerializerOptions {
 	 */
 	strict?: boolean;
 	/**
+	 * String to use to indent a level in the serialized cDIF text,
+	 * or `null` to disable pretty-printing
+	 * (defaults to `null`)
+	 */
+	indent?: string | null;
+	/**
+	 * Separator between object or collection entries in the serialized cDIF text
+	 * (defaults to `,`)
+	 */
+	structureEntrySeparator?: "," | ";";
+	/**
+	 * Whether a separator should be added after the last entry in an object or collection
+	 * (defaults to `true` iff `structureEntrySeparator` is `;`)
+	 */
+	addFinalStructureEntrySeparator?: boolean;
+	/**
 	 * Array of functions (in order of precedence) called for each value before serialization,
 	 * used to customize behavior and/or add type names
 	 * (see docs for details)
@@ -40,11 +56,15 @@ export function parseOptions(options?: CDIFOptions): { // return type is basical
 	serializer: Required<SerializerOptions>;
 } {
 	options = options ?? {};
+	const structureSep = options.serializer?.structureEntrySeparator ?? ",";
 	return {
 		cdifVersion: parseCdifVersion(options.cdifVersion),
 		// parser: {},
 		serializer: {
 			strict: options.serializer?.strict ?? true,
+			indent: options.serializer?.indent ?? null,
+			structureEntrySeparator: structureSep,
+			addFinalStructureEntrySeparator: options.serializer?.addFinalStructureEntrySeparator ?? (structureSep === ";"),
 			preprocessors: options.serializer?.preprocessors ?? []
 		}
 	};
@@ -52,7 +72,7 @@ export function parseOptions(options?: CDIFOptions): { // return type is basical
 
 function parseCdifVersion(cdifVersion?: number) : number {
 	if (!isValue(cdifVersion)) {return CDIF_LATEST;}
-	if (((cdifVersion % 1) !== 0) || (cdifVersion < 0)) {throw new RangeError("cdifVersion must be a positive integer");}
+	if (((cdifVersion % 1) !== 0) || (cdifVersion < 0)) {throw new RangeError(`cdifVersion must be a positive integer`);}
 	if (cdifVersion > CDIF_LATEST) {throw new RangeError(`cDIF version ${cdifVersion} is not known`);}
 	return cdifVersion;
 }

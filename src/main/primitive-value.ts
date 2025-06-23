@@ -103,7 +103,7 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		cdifVersion: number
 	) {
 		super(cdifVersion);
-		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {throw new Error("Invalid significand");}
+		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {throw new Error(`Invalid significand`);}
 	}
 
 	public override get cdifText(): string {
@@ -188,7 +188,7 @@ function canonicalizeCharEntity(entity: string, enclosingQuote: "'" | "\""): str
 			["/", () => "/"],
 			[() => /^\\u[0-9a-fA-F]{4}$/us.test(entity), () => `\\u${entity.slice(2)}`],
 			[() => /^\\U[0-9a-fA-F]{8}$/us.test(entity), () => `\\U${entity.slice(2)}`],
-			[sw.DEFAULT, () => {throw new RangeError("Invalid escape sequence");}]
+			[sw.DEFAULT, () => {throw new RangeError(`Invalid escape sequence`);}]
 		]);
 	} else if (/^\P{C}$/us.test(entity)) { // printable character
 		return sw(entity, [
@@ -199,7 +199,7 @@ function canonicalizeCharEntity(entity: string, enclosingQuote: "'" | "\""): str
 	} else { // something else (ex. control character)
 		return sw(entity, [
 			["\t", () => "\\t"], // tab is the only allowed control character
-			[sw.DEFAULT, () => {throw new RangeError("Invalid character entity");}]
+			[sw.DEFAULT, () => {throw new RangeError(`Invalid character entity`);}]
 		]);
 	}
 }

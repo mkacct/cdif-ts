@@ -49,7 +49,7 @@ function parseFileOptions(options: FileOptions | undefined, cdifVersion: number)
 	let headerData: {cdifVersionString: string;} | null = null;
 	if (addHeader) {
 		if (!isValue(options.cdifVersionString)) {
-			throw new CDIFError(`if addHeader is true, cdifVersionString must be supplied`);
+			throw new CDIFError(`If addHeader is true, cdifVersionString must be supplied`);
 		}
 		headerData = {cdifVersionString: options.cdifVersionString};
 	}
@@ -62,7 +62,7 @@ function parseFileOptions(options: FileOptions | undefined, cdifVersion: number)
 function validateCdifVersionString(cdifVersionString: string, cdifVersion: number): void {
 	const match = cdifVersionString.match(/^(?<major>0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))*$/s);
 	if (!match) {
-		throw new CDIFError(`invalid cDIF version string "${cdifVersionString}"`);
+		throw new CDIFError(`Invalid cDIF version string "${cdifVersionString}"`);
 	}
 	const major: number = parseInt(match.groups!.major);
 	if (major !== cdifVersion) {

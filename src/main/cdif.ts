@@ -5,6 +5,7 @@ import {CDIFOptions, parseOptions, SerializerOptions} from "./options.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import {encodeCdifValue} from "./serializer/encoder.js";
 import {FileOptions, formatCdifFile} from "./serializer/file-formatter.js";
+import {stringifyCdifValue} from "./serializer/stringifier.js";
 
 /** Latest cDIF major version known to this implementation */
 export const CDIF_LATEST: number = 1;
@@ -31,7 +32,7 @@ export default class CDIF {
 	}
 
 	public parse(cdifText: string): unknown {
-		throw new Error("NYI");
+		throw new Error(`NYI`);
 	}
 
 	/**
@@ -41,8 +42,8 @@ export default class CDIF {
 	 */
 	public serialize(value: unknown): string {
 		const encodedValue: CDIFValue | undefined = encodeCdifValue(null, value, this.serializerOptions, this.cdifVersion);
-		if (!isValue(encodedValue)) {throw new CDIFError("root value was omitted");}
-		// TODO: return cdif text
+		if (!isValue(encodedValue)) {throw new CDIFError(`Root value was omitted`);}
+		return stringifyCdifValue(encodedValue, this.serializerOptions);
 	}
 
 	/**
