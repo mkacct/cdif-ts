@@ -1,6 +1,6 @@
 import {isValue} from "@mkacct/ts-util";
 import {CDIF_LATEST} from "./cdif.js";
-import {SerializerPreprocessorFunction} from "./encoder.js";
+import {SerializerPreprocessorFunction} from "./serializer/encoder.js";
 
 export interface CDIFOptions {
 	/** Integer major version of cDIF to use (defaults to latest) */

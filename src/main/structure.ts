@@ -1,6 +1,6 @@
 import {isValue} from "@mkacct/ts-util";
-import {CDIFValue} from "./cdif.js";
 import {CDIFSyntaxError} from "./errors.js";
+import {CDIFValue} from "./general.js";
 import {isValidName, isValidTypeId} from "./identifiers.js";
 
 /**

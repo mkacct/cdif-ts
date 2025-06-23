@@ -1,16 +1,13 @@
 import {isValue} from "@mkacct/ts-util";
-import {encodeCdifValue} from "./encoder.js";
 import {CDIFError} from "./errors.js";
-import {FileOptions, formatFile} from "./file-formatter.js";
+import {CDIFValue} from "./general.js";
 import {CDIFOptions, parseOptions, SerializerOptions} from "./options.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
-import CDIFStructure from "./structure.js";
+import {encodeCdifValue} from "./serializer/encoder.js";
+import {FileOptions, formatCdifFile} from "./serializer/file-formatter.js";
 
 /** Latest cDIF major version known to this implementation */
 export const CDIF_LATEST: number = 1;
-
-/** A cDIF value, which can be either a primitive value or a structure. */
-export type CDIFValue = CDIFPrimitiveValue | CDIFStructure;
 
 /**
  * Provides functions to parse and serialize cDIF data.
@@ -56,7 +53,7 @@ export default class CDIF {
 	 * @note if `options` is not set, behavior is equivalent to `serialize()`
 	 */
 	public serializeFile(value: unknown, options?: FileOptions) {
-		return formatFile(this.serialize(value), options, this.cdifVersion);
+		return formatCdifFile(this.serialize(value), options, this.cdifVersion);
 	}
 
 	/**

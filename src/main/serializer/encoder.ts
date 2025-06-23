@@ -1,10 +1,11 @@
 import {between, isValue} from "@mkacct/ts-util";
 import sw from "@mkacct/ts-util/switch";
-import CDIF, {CDIFValue} from "./cdif.js";
-import {CDIFError, CDIFTypeError} from "./errors.js";
-import {SerializerOptions} from "./options.js";
-import CDIFPrimitiveValue, {CDIFBoolean, CDIFFloat, CDIFInfinite, CDIFInteger, CDIFNull, CDIFString} from "./primitive-value.js";
-import CDIFStructure, {CDIFCollection, CDIFObject} from "./structure.js";
+import CDIF from "../cdif.js";
+import {CDIFError, CDIFTypeError} from "../errors.js";
+import {CDIFValue} from "../general.js";
+import {SerializerOptions} from "../options.js";
+import CDIFPrimitiveValue, {CDIFBoolean, CDIFFloat, CDIFInfinite, CDIFInteger, CDIFNull, CDIFString} from "../primitive-value.js";
+import CDIFStructure, {CDIFCollection, CDIFObject} from "../structure.js";
 
 /**
  * A function used to customize serialization behavior and/or add type names.

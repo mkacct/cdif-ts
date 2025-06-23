@@ -1,5 +1,5 @@
 import {isValue} from "@mkacct/ts-util";
-import {CDIFError} from "./errors.js";
+import {CDIFError} from "../errors.js";
 
 export interface FileOptions {
 	/**
@@ -31,7 +31,7 @@ export interface FileOptions {
  * @param cdifVersion
  * @returns cDIF file string (suitable for writing to a file)
  */
-export function formatFile(cdifText: string, options: FileOptions | undefined, cdifVersion: number): string {
+export function formatCdifFile(cdifText: string, options: FileOptions | undefined, cdifVersion: number): string {
 	const parsedOptions = parseFileOptions(options, cdifVersion);
 	return (
 		(parsedOptions.headerData ? `# cDIF ${parsedOptions.headerData.cdifVersionString}\n` : "")
