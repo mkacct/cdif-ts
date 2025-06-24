@@ -29,7 +29,7 @@ export default abstract class CDIFPrimitiveValue {
  * @throws {CDIFSyntaxError} if the input text is not a valid cDIF primitive value
  */
 export function createPrimVal(cdifText: string, cdifVersion: number): CDIFPrimitiveValue {
-	const primValClasses: PrimitiveValueClass[] = [
+	const primValClasses: ReadonlyArray<PrimitiveValueClass> = [
 		CDIFNull,
 		CDIFBoolean,
 		CDIFCharacter,
@@ -112,7 +112,7 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFFloat {
 		const {isNegative, withoutSign} = checkSign(cdifText);
-		const parts: string[] = withoutSign.split(/e/i);
+		const parts: ReadonlyArray<string> = withoutSign.split(/e/i);
 		if (between(parts.length, 1, 2)) {
 			return new CDIFFloat(
 				isNegative,
@@ -254,7 +254,7 @@ function splitIntoUnicodeChars(str: string): string[] {
 
 export class CDIFString extends CDIFPrimitiveValue {
 
-	public constructor(private readonly entities: string[], cdifVersion: number) {
+	public constructor(private readonly entities: ReadonlyArray<string>, cdifVersion: number) {
 		super(cdifVersion);
 		this.entities = entities.map((ent: string): string => canonicalizeCharEntity(ent, "\""));
 	}
@@ -384,12 +384,12 @@ export class CDIFString extends CDIFPrimitiveValue {
 		}
 	}
 
-	private static processMultilineSpecificEntities(entities: string[], isVerbatim: boolean): string[] {
-		entities = entities.map((ent: string): string => (ent === "\n") ? "\\n" : ent); // escape newlines
+	private static processMultilineSpecificEntities(entities: ReadonlyArray<string>, isVerbatim: boolean): string[] {
+		let res: string[] = entities.map((ent: string): string => (ent === "\n") ? "\\n" : ent); // escape newlines
 		if (!isVerbatim) {
-			entities = entities.filter((ent: string): boolean => ent !== "\\\n"); // line continuations resolve to nothing
+			res = res.filter((ent: string): boolean => ent !== "\\\n"); // line continuations resolve to nothing
 		}
-		return entities;
+		return res;
 	}
 
 }

@@ -43,7 +43,7 @@ export interface SerializerOptions {
 	 * used to customize behavior and/or add type names
 	 * (see docs for details)
 	 */
-	preprocessors?: readonly SerializerPreprocessorFunction[];
+	preprocessors?: ReadonlyArray<SerializerPreprocessorFunction>;
 }
 
 /**

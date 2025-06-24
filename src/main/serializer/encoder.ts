@@ -93,7 +93,7 @@ function encodeCdifStructure(
 function runPreprocessors(
 	key: null | string | number,
 	value: unknown,
-	preprocessors: readonly SerializerPreprocessorFunction[]
+	preprocessors: ReadonlyArray<SerializerPreprocessorFunction>
 ): PreprocessorResult | typeof CDIF.SERIALIZER_OMIT_PROPERTY {
 	for (const preprocessor of preprocessors) {
 		const res = preprocessor({key, value});

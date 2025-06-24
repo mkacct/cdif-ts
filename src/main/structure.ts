@@ -23,9 +23,9 @@ export default abstract class CDIFStructure {
 export class CDIFCollection extends CDIFStructure {
 
 	/** Array of values contained by the collection */
-	public readonly data: readonly CDIFValue[];
+	public readonly data: ReadonlyArray<CDIFValue>;
 
-	public constructor(data: readonly CDIFValue[], type?: string) {
+	public constructor(data: ReadonlyArray<CDIFValue>, type?: string) {
 		super(type);
 		this.data = data.slice();
 	}
