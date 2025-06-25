@@ -5,7 +5,9 @@ import {CDIFSyntaxError} from "../../main/errors.js";
 
 suite("CDIF.createPrimitiveValue()", (): void => {
 
-	const cdif: CDIF = new CDIF({cdifVersion: 1});
+	const VER: number = 1;
+
+	const cdif: CDIF = new CDIF({cdifVersion: VER});
 
 	test("Nonsense", (): void => {
 		assert.throws(() => {cdif.createPrimitiveValue("");}, CDIFSyntaxError);
