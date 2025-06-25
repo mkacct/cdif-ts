@@ -103,7 +103,7 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		cdifVersion: number
 	) {
 		super(cdifVersion);
-		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {throw new Error(`Invalid significand`);}
+		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {throw new Error(`Invalid significand: ${significand}`);}
 	}
 
 	public override get cdifText(): string {

@@ -146,12 +146,14 @@ function encodeCdifPrimitiveValue(
 function encodeCdifFloat(strRep: string, cdifVersion: number): CDIFFloat {
 	const match = strRep.match(/^(?<sign>[+-])?(?<significand>(?:0|[1-9]\d*)(?:\.\d*[1-9])?)(?:e(?<exponent>[+-]?\d+))?$/us);
 	if (!match) {throw new Error(`Failed to parse floating point representation: "${strRep}"`);}
-	const {sign, significand, exponent} : {
+	let {sign, significand, exponent} : {
 		sign?: string;
 		significand?: string;
 		exponent?: string;
 	} = match.groups!;
-	if (!significand) {throw new Error(`Floating point representation missing significand: "${strRep}"`);}
+	if (!isValue(significand)) {throw new Error(`Floating point representation missing significand: "${strRep}"`);}
+	if (!significand.includes(".")) {significand += ".";}
+	if (!isValue(exponent)) {exponent = "0";}
 	return new CDIFFloat(sign === "-", significand, BigInt(exponent), cdifVersion);
 }
 
