@@ -6,23 +6,23 @@ export interface FileOptions {
 	 * Whether to prepend the "cDIF" directive at the start of the file
 	 * (defaults to `true` iff `cdifVersionString` is provided)
 	 */
-	addHeader?: boolean;
+	readonly addHeader?: boolean;
 	/**
 	 * cDIF version string to use in the "cDIF" directive
 	 * (required if `addHeader` is `true`)
 	 */
-	cdifVersionString?: string;
+	readonly cdifVersionString?: string;
 	/**
 	 * Whether to append a semicolon at the end of the data value
 	 * (defaults to `false`)
 	 */
-	addFinalSemicolon?: boolean;
+	readonly addFinalSemicolon?: boolean;
 	/**
 	 * If `true`, `cdifVersionString` will not be validated;
 	 * if `false`, an error will be thrown if `cdifVersionString` is invalid or does not match the cDIF version
 	 * (defaults to `false`)
 	 */
-	allowUnexpectedVersionString?: boolean;
+	readonly allowUnexpectedVersionString?: boolean;
 }
 
 /**

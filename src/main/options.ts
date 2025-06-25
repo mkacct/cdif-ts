@@ -4,11 +4,11 @@ import {SerializerPreprocessorFunction} from "./serializer/encoder.js";
 
 export interface CDIFOptions {
 	/** Integer major version of cDIF to use (defaults to latest) */
-	cdifVersion?: number;
+	readonly cdifVersion?: number;
 	// /** Options pertaining to the parser */
 	// parser?: ParserOptions;
 	/** Options pertaining to the serializer */
-	serializer?: SerializerOptions;
+	readonly serializer?: SerializerOptions;
 }
 
 // interface ParserOptions {
@@ -21,29 +21,29 @@ export interface SerializerOptions {
 	 * in non-strict mode, the value will be omitted or replaced with null
 	 * (defaults to `true`; see docs for details)
 	 */
-	strict?: boolean;
+	readonly strict?: boolean;
 	/**
 	 * String to use to indent a level in the serialized cDIF text,
-	 * or `null` to disable pretty-printing
+	 * or `null` to output as one line
 	 * (defaults to `null`)
 	 */
-	indent?: string | null;
+	readonly indent?: string | null;
 	/**
 	 * Separator between object or collection entries in the serialized cDIF text
 	 * (defaults to `,`)
 	 */
-	structureEntrySeparator?: "," | ";";
+	readonly structureEntrySeparator?: "," | ";";
 	/**
 	 * Whether a separator should be added after the last entry in an object or collection
 	 * (defaults to `true` iff `structureEntrySeparator` is `;`)
 	 */
-	addFinalStructureEntrySeparator?: boolean;
+	readonly addFinalStructureEntrySeparator?: boolean;
 	/**
 	 * Array of functions (in order of precedence) called for each value before serialization,
 	 * used to customize behavior and/or add type names
 	 * (see docs for details)
 	 */
-	preprocessors?: ReadonlyArray<SerializerPreprocessorFunction>;
+	readonly preprocessors?: ReadonlyArray<SerializerPreprocessorFunction>;
 }
 
 /**
