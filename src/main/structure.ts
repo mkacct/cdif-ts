@@ -29,17 +29,16 @@ export default abstract class CDIFStructure {
 	 * @param options
 	 */
 	public writeCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): void {
-		if (this.type) {
-			writer.write(this.type, " ", false);
-		}
+		if (this.type) {writer.write(this.type + " ");}
 		writer.write(this.brackets[0], "", true);
 		writer.changeIndent(1);
-		this.writeDataCdifText(writer, options);
+		const wrote: boolean = this.writeDataCdifText(writer, options);
+		if (!wrote) {writer.clearNextSeparator();}
 		writer.changeIndent(-1);
 		writer.write(this.brackets[1], "", false);
 	}
 
-	protected abstract writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): void;
+	protected abstract writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean;
 
 }
 
@@ -53,14 +52,16 @@ export class CDIFCollection extends CDIFStructure {
 		this.data = data.slice();
 	}
 
-	protected get brackets(): [string, string] {return ["[", "]"];}
+	protected override get brackets(): [string, string] {return ["[", "]"];}
 
-	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): void {
+	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean {
+		if (this.data.length === 0) {return false;}
 		for (const [i, value] of this.data.entries()) {
 			const isLast: boolean = i === this.data.length - 1;
 			writeCdifValueText(writer, value, options);
 			writeSeparator(writer, options, isLast);
 		}
+		return true;
 	}
 
 }
@@ -80,15 +81,17 @@ export class CDIFObject extends CDIFStructure {
 		this.data = map;
 	}
 
-	protected get brackets(): [string, string] {return ["{", "}"];}
+	protected override get brackets(): [string, string] {return ["{", "}"];}
 
-	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): void {
+	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean {
+		if (this.data.size === 0) {return false;}
 		for (const [i, [key, value]] of [...this.data.entries()].entries()) {
 			const isLast: boolean = i === this.data.size - 1;
 			writer.write(`${key}: `);
 			writeCdifValueText(writer, value, options);
 			writeSeparator(writer, options, isLast);
 		}
+		return true;
 	}
 
 }

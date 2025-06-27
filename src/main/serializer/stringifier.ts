@@ -74,4 +74,11 @@ export class PrettyTextWriter {
 		this.indentLevel = Math.max(0, this.indentLevel + by);
 	}
 
+	/**
+	 * Prevent the next write from adding a separator.
+	 */
+	public clearNextSeparator(): void {
+		this.nextSeparator = "";
+	}
+
 }

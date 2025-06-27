@@ -9,7 +9,7 @@ import CDIFStructure, {CDIFCollection, CDIFObject} from "../structure.js";
 
 /**
  * A function used to customize serialization behavior and/or add type names.
- * @note return `{value: unknown, type?: string}` (`type` is only allowed if `value` is an object) replace the value and/or add a type name, `CDIF.SERIALIZER_OMIT_PROPERTY` to omit the property, or `undefined` to try the next preprocessor
+ * @note return `{value: unknown, type?: string}` (`type` is only allowed if `value` is an object) replace the value and/or add a type name, `CDIF.SERIALIZER_OMIT_PROPERTY` to omit the property, or void to try the next preprocessor
  */
 export type SerializerPreprocessorFunction = ({
 	key, value
@@ -18,16 +18,12 @@ export type SerializerPreprocessorFunction = ({
 	key: null | string | number;
 	/** The value to preprocess */
 	value: unknown;
-}) => PreprocessorResult | typeof CDIF.SERIALIZER_OMIT_PROPERTY | undefined;
+}) => PreprocessorResult | typeof CDIF.SERIALIZER_OMIT_PROPERTY | void;
 
 type PreprocessorResult = (
 	{value: unknown}
-	| {value: object, type: string}
+	| {type: string, value: object}
 );
-
-function isObject(value: unknown): value is object {
-	return (typeof value === "object") && (value !== null);
-}
 
 /**
  * @param key the key of the property being serialized (or `null` for the root value)
@@ -52,7 +48,7 @@ export function encodeCdifValue(
 	const res = runPreprocessors(key, value, options.preprocessors);
 	if (res === CDIF.SERIALIZER_OMIT_PROPERTY) {return undefined;}
 	value = res.value;
-	if (isObject(value)) {
+	if ((typeof value === "object") && (value !== null)) {
 		const type: string | undefined = ("type" in res) ? res.type : undefined;
 		return encodeCdifStructure(value, type, options, cdifVersion);
 	} else {
