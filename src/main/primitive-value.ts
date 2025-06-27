@@ -4,7 +4,7 @@ import sw from "@mkacct/ts-util/switch";
 import {CDIFSyntaxError} from "./errors.js";
 
 /**
- * A parsed cDIF primitive value.
+ * An encoded cDIF primitive value.
  */
 export default abstract class CDIFPrimitiveValue {
 
@@ -23,9 +23,9 @@ export default abstract class CDIFPrimitiveValue {
 }
 
 /**
- * @param cdifText input text to parse as a cDIF primitive value
+ * @param cdifText input text to encode as a cDIF primitive value
  * @param cdifVersion integer major version of the cDIF specification
- * @returns the parsed cDIF primitive value
+ * @returns the encoded cDIF primitive value
  * @throws {CDIFSyntaxError} if the input text is not a valid cDIF primitive value
  */
 export function createPrimVal(cdifText: string, cdifVersion: number): CDIFPrimitiveValue {
@@ -49,16 +49,16 @@ export function createPrimVal(cdifText: string, cdifVersion: number): CDIFPrimit
 /** Interface for the CLASS ITSELF (not an instance) denoting a certain type of primitive value. */
 interface PrimitiveValueClass {
 	/**
-	 * @param cdifText input text to parse as a certain type of cDIF primitive value
+	 * @param cdifText input text to encode as a certain type of cDIF primitive value
 	 * @param cdifVersion
-	 * @returns the parsed cDIF primitive value, an instance of the particular class implementing this method
+	 * @returns the encoded cDIF primitive value, an instance of the particular class implementing this method
 	 * @throws {PrimitiveValueError} if the input text is not a valid cDIF primitive value of the type denoted by the class
 	 */
 	fromCdifText(cdifText: string, cdifVersion: number): CDIFPrimitiveValue;
 }
 
 /**
- * Thrown when a `fromCdifText()` method fails to parse a primitive value,
+ * Thrown when a `fromCdifText()` method fails to encode a primitive value,
  * indicating that the input text does not represent a primitive value of the type denoted by the class.
  */
 class PrimitiveValueError extends Error {}
