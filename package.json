@@ -17,7 +17,7 @@
 		"test": "node --test \"build/test/**/!(*.sub).test.js\""
 	},
 	"dependencies": {
-		"@mkacct/ts-util": "^4.1.0"
+		"@mkacct/ts-util": "^5.0.0"
 	},
 	"devDependencies": {
 		"@types/eslint": "^9.6.1",
