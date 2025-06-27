@@ -49,7 +49,7 @@ suite("CDIF.serialize", (): void => {
 
 	matrixStrategy({cdif: Object.values(cdifs)}, (matrix): void => {
 		const cdif: CDIF = matrix.cdif;
-		test(`Primitive values (${cdifNames.get(matrix.cdif)})`, (): void => {
+		test(`Primitive values (${cdifNames.get(cdif)})`, (): void => {
 			assert.equal(cdif.serialize(42n), `42`);
 			assert.equal(cdif.serialize("foo"), `"foo"`);
 			assert.equal(cdif.serialize(null), `null`);
@@ -58,7 +58,7 @@ suite("CDIF.serialize", (): void => {
 
 	matrixStrategy({cdif: Object.values(cdifs)}, (matrix): void => {
 		const cdif: CDIF = matrix.cdif;
-		test(`Pre-encoded primitive values (${cdifNames.get(matrix.cdif)})`, (): void => {
+		test(`Pre-encoded primitive values (${cdifNames.get(cdif)})`, (): void => {
 			assert.equal(cdif.serialize(new CDIFInteger(42n, VER)), `42`);
 			assert.equal(cdif.serialize(new CDIFString("foo".split(""), VER)), `"foo"`);
 			assert.equal(cdif.serialize(new CDIFNull(VER)), `null`);
@@ -145,6 +145,32 @@ suite("CDIF.serialize", (): void => {
 					];
 					ignore_notReally: "don't ignore me";
 					examplePreencoded: 'a';
+				}
+			`));
+		});
+	}
+
+	{
+		const cdif: CDIF = new CDIF({cdifVersion: VER, serializer: {
+			indent: "..",
+			structureEntrySeparator: ",",
+			addFinalStructureEntrySeparator: true
+		}});
+		test("Weird options and miscellanea", (): void => {
+			assert.equal(cdif.serialize({
+				x: 1,
+				coolUsername: "not_that_cool",
+				list: [1n, 2n, 3n],
+				undefinedGetsIgnored: undefined
+			}), block(4, `
+				{
+				..x: 1.,
+				..coolUsername: "not_that_cool",
+				..list: [
+				....1,
+				....2,
+				....3,
+				..],
 				}
 			`));
 		});
