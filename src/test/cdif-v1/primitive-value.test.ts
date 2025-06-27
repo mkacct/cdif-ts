@@ -3,7 +3,7 @@ import test, {suite} from "node:test";
 import CDIF from "../../main/cdif.js";
 import {CDIFSyntaxError} from "../../main/errors.js";
 
-suite("CDIF.createPrimitiveValue()", (): void => {
+suite("CDIF.createPrimitiveValue", (): void => {
 
 	const VER: number = 1;
 
