@@ -6,6 +6,7 @@ import CDIF from "../../main/cdif.js";
 import {CDIFCharacter, CDIFInteger, CDIFNull, CDIFString} from "../../main/primitive-value.js";
 import {SerializerPreprocessorFunction} from "../../main/serializer/encoder.js";
 import {reverseRecord} from "./test-util.js";
+import {CDIFError, CDIFSyntaxError, CDIFTypeError} from "../../main/errors.js";
 
 suite("CDIF.serialize", (): void => {
 
@@ -31,7 +32,7 @@ suite("CDIF.serialize", (): void => {
 			if (key === "coolUsername") {
 				return {value: `Xx_${value}_xX`};
 			}
-		}
+		},
 	];
 
 	const cdifs: Record<string, CDIF> = {
@@ -152,10 +153,46 @@ suite("CDIF.serialize", (): void => {
 
 	{
 		const cdif: CDIF = new CDIF({cdifVersion: VER, serializer: {
+			preprocessors: [
+				({key, value}) => {
+					if (key === "badTypeName") {
+						return {value, type: "Bad Type Name"};
+					}
+				},
+				({value}) => {
+					if (value === "PLEASE OMIT ME THANK YOU") {
+						return CDIF.SERIALIZER_OMIT_PROPERTY;
+					}
+				}
+			]
+		}});
+
+		test(`Error cases`, (): void => {
+			assert.throws((): void => { // CDIFPrimitiveValue with wrong version
+				cdif.serialize(new CDIFInteger(42n, 2));
+			}, CDIFError);
+			assert.throws((): void => { // omit collection value
+				cdif.serialize(["PLEASE OMIT ME THANK YOU"]);
+			}, CDIFError);
+			assert.throws((): void => { // bad object key name
+				cdif.serialize({"uh oh spaces in key": "nope"});
+			}, CDIFSyntaxError);
+			assert.throws((): void => { // bad type name
+				cdif.serialize({"badTypeName": {}});
+			}, CDIFSyntaxError);
+			assert.throws((): void => { // disallowed type
+				cdif.serialize(Symbol("uh oh symbol"));
+			}, CDIFTypeError);
+		});
+	}
+
+	{
+		const cdif: CDIF = new CDIF({cdifVersion: VER, serializer: {
 			indent: "..",
 			structureEntrySeparator: ",",
 			addFinalStructureEntrySeparator: true
 		}});
+
 		test("Weird options and miscellanea", (): void => {
 			assert.equal(cdif.serialize({
 				x: 1,
