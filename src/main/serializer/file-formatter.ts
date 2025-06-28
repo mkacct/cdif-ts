@@ -30,6 +30,7 @@ export interface FileOptions {
  * @param options
  * @param cdifVersion
  * @returns cDIF file string (suitable for writing to a file)
+ * @throws {CDIFError} if `options` is invalid
  */
 export function formatCdifFile(cdifText: string, options: FileOptions | undefined, cdifVersion: number): string {
 	const parsedOptions = parseFileOptions(options, cdifVersion);

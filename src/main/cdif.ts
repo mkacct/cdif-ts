@@ -24,6 +24,7 @@ export default class CDIF {
 	/**
 	 * Create an instance of the cDIF parser/serializer.
 	 * @param options customize the behavior of the parser and/or serializer
+	 * @throws {CDIFError} if `options` is invalid
 	 */
 	public constructor(options?: CDIFOptions) {
 		const parsedOptions = parseOptions(options);
@@ -31,14 +32,24 @@ export default class CDIF {
 		this.serializerOptions = parsedOptions.serializer;
 	}
 
+	/**
+	 * Converts a cDIF string to a JS value.
+	 * @param cdifText a valid cDIF string (read from a file or otherwise)
+	 * @returns `cdifText` converted to a JS value (usually an object or array)
+	 */
 	public parse(cdifText: string): unknown {
 		throw new Error(`NYI`);
 	}
 
 	/**
 	 * Converts a JS value to a cDIF data string.
-	 * @param value a JS value (usually an object or array) to be converted
+	 * @param value a JS value (usually an object or array)
 	 * @returns `value` converted to a cDIF data string
+	 * @throws {CDIFError} if any value is a `CDIFPrimitiveValue` created with the wrong cDIF version
+	 * @throws {CDIFError} if a preprocessor function tries to omit the root value, or, in strict mode, a collection value
+	 * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name
+	 * @throws {CDIFSyntaxError} if a preprocessor function returns a type name that is not a valid cDIF type name
+	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
 	public serialize(value: unknown): string {
 		const encodedValue: CDIFValue | undefined = encodeCdifValue(null, value, this.serializerOptions, this.cdifVersion);
@@ -52,6 +63,12 @@ export default class CDIF {
 	 * @param options customize the behavior of the file formatter
 	 * @returns `value` converted to a cDIF file string
 	 * @note if `options` is not set, behavior is equivalent to `serialize()`
+	 * @throws {CDIFError} if `options` is invalid
+	 * @throws {CDIFError} if any value is a `CDIFPrimitiveValue` created with the wrong cDIF version
+	 * @throws {CDIFError} if a preprocessor function tries to omit the root value, or, in strict mode, a collection value
+	 * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name
+	 * @throws {CDIFSyntaxError} if a preprocessor function returns a type name that is not a valid cDIF type name
+	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
 	public serializeFile(value: unknown, options?: FileOptions) {
 		return formatCdifFile(this.serialize(value), options, this.cdifVersion);
@@ -60,6 +77,7 @@ export default class CDIF {
 	/**
 	 * @param cdifText valid cDIF text representing a primitive value
 	 * @returns a cDIF primitive value object representation of the primitive value
+	 * @throws {CDIFSyntaxError} if `cdifText` is not a valid cDIF primitive value
 	 */
 	public createPrimitiveValue(cdifText: string): CDIFPrimitiveValue {
 		return createPrimVal(cdifText, this.cdifVersion);

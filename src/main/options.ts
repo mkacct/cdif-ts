@@ -49,6 +49,7 @@ export interface SerializerOptions {
 /**
  * @param options
  * @returns `options` with certain values normalized and defaults applied
+ * @throws {RangeError} if `cdifVersion` is invalid
  */
 export function parseOptions(options?: CDIFOptions): { // return type is basically deep required CDIFOptions
 	cdifVersion: number;

@@ -31,6 +31,11 @@ type PreprocessorResult = (
  * @param options
  * @param cdifVersion
  * @returns the serialized `CDIFValue`, or `undefined` if the value should be omitted
+ * @throws {CDIFError} if `value` is a `CDIFPrimitiveValue` created with the wrong cDIF version
+ * @throws {CDIFError} in strict mode, if a preprocessor function tries to omit a collection value
+ * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name
+ * @throws {CDIFSyntaxError} if a preprocessor function returns a type name that is not a valid cDIF type name
+ * @throws {CDIFTypeError} in strict mode, if `value` is of a disallowed type
  */
 export function encodeCdifValue(
 	key: null | string | number,
