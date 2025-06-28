@@ -2,6 +2,7 @@ import {between, isValue} from "@mkacct/ts-util";
 import sw from "@mkacct/ts-util/switch";
 import CDIF from "../cdif.js";
 import {CDIFError, CDIFTypeError} from "../errors.js";
+import {ss_defineFunc} from "../extensions/ss-util.js";
 import {CDIFValue} from "../general.js";
 import {SerializerOptions} from "../options.js";
 import CDIFPrimitiveValue, {CDIFBoolean, CDIFFloat, CDIFInfinite, CDIFInteger, CDIFNull, CDIFString} from "../primitive-value.js";
@@ -53,7 +54,7 @@ export function encodeCdifValue(
 	const res = runPreprocessors(key, value, options.preprocessors);
 	if (res === CDIF.SERIALIZER_OMIT_PROPERTY) {return undefined;}
 	value = res.value;
-	if ((typeof value === "object") && (value !== null)) {
+	if ((typeof value === "object") && (value !== null)) { // TS type object
 		const type: string | undefined = ("type" in res) ? res.type : undefined;
 		return encodeCdifStructure(value, type, options, cdifVersion);
 	} else {
@@ -182,3 +183,7 @@ function encodeCdifString(str: string, cdifVersion: number): CDIFString {
 	}
 	return new CDIFString(entities, cdifVersion);
 }
+
+// type validation:
+
+export const struct_SerializerPreprocessorFunction = ss_defineFunc<SerializerPreprocessorFunction>("SerializerPreprocessorFunction", 1);

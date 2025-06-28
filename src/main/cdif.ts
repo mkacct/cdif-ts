@@ -1,10 +1,11 @@
 import {isValue} from "@mkacct/ts-util";
+import * as ss from "superstruct";
 import {CDIFError} from "./errors.js";
 import {CDIFValue} from "./general.js";
-import {CDIFOptions, parseOptions, SerializerOptions} from "./options.js";
+import {CDIFOptions, parseOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import {encodeCdifValue} from "./serializer/encoder.js";
-import {FileOptions, formatCdifFile} from "./serializer/file-formatter.js";
+import {FileOptions, formatCdifFile, struct_FileOptions} from "./serializer/file-formatter.js";
 import {stringifyCdifValue} from "./serializer/stringifier.js";
 
 /** Latest cDIF major version known to this implementation */
@@ -27,6 +28,7 @@ export default class CDIF {
 	 * @throws {CDIFError} if `options` is invalid
 	 */
 	public constructor(options?: CDIFOptions) {
+		if (!ss.is(options, struct_CDIFOptions)) {throw new TypeError(`options must be a valid CDIFOptions object`);}
 		const parsedOptions = parseOptions(options);
 		this.cdifVersion = parsedOptions.cdifVersion;
 		this.serializerOptions = parsedOptions.serializer;
@@ -38,6 +40,11 @@ export default class CDIF {
 	 * @returns `cdifText` converted to a JS value (usually an object or array)
 	 */
 	public parse(cdifText: string): unknown {
+		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
+		return this.parseImpl(cdifText);
+	}
+
+	private parseImpl(cdifText: string) {
 		throw new Error(`NYI`);
 	}
 
@@ -52,9 +59,7 @@ export default class CDIF {
 	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
 	public serialize(value: unknown): string {
-		const encodedValue: CDIFValue | undefined = encodeCdifValue(null, value, this.serializerOptions, this.cdifVersion);
-		if (!isValue(encodedValue)) {throw new CDIFError(`Root value was omitted`);}
-		return stringifyCdifValue(encodedValue, this.serializerOptions);
+		return this.serializeImpl(value);
 	}
 
 	/**
@@ -70,8 +75,17 @@ export default class CDIF {
 	 * @throws {CDIFSyntaxError} if a preprocessor function returns a type name that is not a valid cDIF type name
 	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
-	public serializeFile(value: unknown, options?: FileOptions) {
-		return formatCdifFile(this.serialize(value), options, this.cdifVersion);
+	public serializeFile(value: unknown, options?: FileOptions): string {
+		if (options === undefined) {options = {};}
+		if (!ss.is(options, struct_FileOptions)) {throw new TypeError(`options must be a valid FileOptions object`);}
+		return this.serializeImpl(value, options);
+	}
+
+	private serializeImpl(value: unknown, fileOptions?: FileOptions) {
+		const encodedValue: CDIFValue | undefined = encodeCdifValue(null, value, this.serializerOptions, this.cdifVersion);
+		if (!isValue(encodedValue)) {throw new CDIFError(`Root value was omitted`);}
+		const cdifText: string = stringifyCdifValue(encodedValue, this.serializerOptions);
+		return fileOptions ? formatCdifFile(cdifText, fileOptions, this.cdifVersion) : cdifText;
 	}
 
 	/**
@@ -80,6 +94,7 @@ export default class CDIF {
 	 * @throws {CDIFSyntaxError} if `cdifText` is not a valid cDIF primitive value
 	 */
 	public createPrimitiveValue(cdifText: string): CDIFPrimitiveValue {
+		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
 		return createPrimVal(cdifText, this.cdifVersion);
 	}
 

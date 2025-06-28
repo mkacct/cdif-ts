@@ -1,4 +1,6 @@
 import {isValue} from "@mkacct/ts-util";
+import * as ss from "superstruct";
+import {Describe} from "superstruct";
 import {CDIFError} from "../errors.js";
 
 export interface FileOptions {
@@ -32,7 +34,7 @@ export interface FileOptions {
  * @returns cDIF file string (suitable for writing to a file)
  * @throws {CDIFError} if `options` is invalid
  */
-export function formatCdifFile(cdifText: string, options: FileOptions | undefined, cdifVersion: number): string {
+export function formatCdifFile(cdifText: string, options: FileOptions, cdifVersion: number): string {
 	const parsedOptions = parseFileOptions(options, cdifVersion);
 	return (
 		(parsedOptions.headerData ? `# cDIF ${parsedOptions.headerData.cdifVersionString}\n` : "")
@@ -41,8 +43,7 @@ export function formatCdifFile(cdifText: string, options: FileOptions | undefine
 	);
 }
 
-function parseFileOptions(options: FileOptions | undefined, cdifVersion: number) {
-	options = options ?? {};
+function parseFileOptions(options: FileOptions, cdifVersion: number) {
 	const addHeader: boolean = options.addHeader ?? (isValue(options.cdifVersionString));
 	if (isValue(options.cdifVersionString) && !options.allowUnexpectedVersionString) {
 		validateCdifVersionString(options.cdifVersionString, cdifVersion);
@@ -70,3 +71,12 @@ function validateCdifVersionString(cdifVersionString: string, cdifVersion: numbe
 		throw new CDIFError(`cDIF file formatter version mismatch (expected ${cdifVersion}, got ${major})`);
 	}
 }
+
+// type validation:
+
+export const struct_FileOptions: Describe<FileOptions> = ss.object({
+	addHeader: ss.optional(ss.boolean()),
+	cdifVersionString: ss.optional(ss.string()),
+	addFinalSemicolon: ss.optional(ss.boolean()),
+	allowUnexpectedVersionString: ss.optional(ss.boolean())
+});

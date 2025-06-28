@@ -1,6 +1,9 @@
 import {isValue} from "@mkacct/ts-util";
+import * as ss from "superstruct";
+import {Describe} from "superstruct";
 import {CDIF_LATEST} from "./cdif.js";
-import {SerializerPreprocessorFunction} from "./serializer/encoder.js";
+import {ss_readonlyArray} from "./extensions/ss-util.js";
+import {SerializerPreprocessorFunction, struct_SerializerPreprocessorFunction} from "./serializer/encoder.js";
 
 export interface CDIFOptions {
 	/** Integer major version of cDIF to use (defaults to latest) */
@@ -77,3 +80,19 @@ function parseCdifVersion(cdifVersion?: number) : number {
 	if (cdifVersion > CDIF_LATEST) {throw new RangeError(`cDIF version ${cdifVersion} is not known`);}
 	return cdifVersion;
 }
+
+// type validation:
+
+const struct_SerializerOptions: Describe<SerializerOptions> = ss.object({
+	strict: ss.optional(ss.boolean()),
+	indent: ss.optional(ss.nullable(ss.string())),
+	structureEntrySeparator: ss.optional(ss.enums([",", ";"])),
+	addFinalStructureEntrySeparator: ss.optional(ss.boolean()),
+	preprocessors: ss.optional(ss_readonlyArray(struct_SerializerPreprocessorFunction))
+});
+
+export const struct_CDIFOptions: Describe<CDIFOptions> = ss.object({
+	cdifVersion: ss.optional(ss.number()),
+	// parser: ss.optional(ss_ParserOptions),
+	serializer: ss.optional(struct_SerializerOptions)
+});
