@@ -40,7 +40,9 @@ export function createPrimVal(cdifText: string, cdifVersion: number): CDIFPrimit
 	];
 	for (const primValClass of primValClasses) {
 		try {
-			return primValClass.fromCdifText(cdifText, cdifVersion);
+			const primVal: CDIFPrimitiveValue = primValClass.fromCdifText(cdifText, cdifVersion);
+			Object.freeze(primVal);
+			return primVal;
 		} catch (err) {if (!(err instanceof PrimitiveValueError)) {throw err;}}
 	}
 	throw new CDIFSyntaxError(`Invalid cDIF primitive value "${cdifText}"`);
