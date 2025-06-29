@@ -1,10 +1,10 @@
+import {block} from "@mkacct/ts-util/strings";
+import {matrixStrategy} from "@mkacct/ts-util/tests";
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
-import CDIF from "../../main/cdif.js";
-import {block} from "@mkacct/ts-util/strings";
-import {reverseRecord} from "./test-util.js";
-import {matrixStrategy} from "@mkacct/ts-util/tests";
-import {CDIFError} from "../../main/errors.js";
+import CDIF from "../../../main/cdif.js";
+import {CDIFError} from "../../../main/errors.js";
+import {reverseRecord} from "../test-util.js";
 
 suite("CDIF.serialize", (): void => {
 
