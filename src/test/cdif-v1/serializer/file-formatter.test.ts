@@ -6,7 +6,7 @@ import CDIF from "../../../main/cdif.js";
 import {CDIFError} from "../../../main/errors.js";
 import {reverseRecord} from "../test-util.js";
 
-suite("CDIF.serialize", (): void => {
+suite("CDIF.serializeFile", (): void => {
 
 	const VER: number = 1;
 
