@@ -1,7 +1,6 @@
 import {isValue} from "@mkacct/ts-util";
 import * as ss from "superstruct";
 import {Describe} from "superstruct";
-import {CDIFError} from "../errors.js";
 
 export interface FileOptions {
 	/**
@@ -32,7 +31,7 @@ export interface FileOptions {
  * @param options
  * @param cdifVersion
  * @returns cDIF file string (suitable for writing to a file)
- * @throws {CDIFError} if `options` is invalid
+ * @throws {Error} if `options` is invalid
  */
 export function formatCdifFile(cdifText: string, options: FileOptions, cdifVersion: number): string {
 	const parsedOptions = parseFileOptions(options, cdifVersion);
@@ -51,7 +50,7 @@ function parseFileOptions(options: FileOptions, cdifVersion: number) {
 	let headerData: {cdifVersionString: string;} | null = null;
 	if (addHeader) {
 		if (!isValue(options.cdifVersionString)) {
-			throw new CDIFError(`If addHeader is true, cdifVersionString must be supplied`);
+			throw new Error(`If addHeader is true, cdifVersionString must be supplied`);
 		}
 		headerData = {cdifVersionString: options.cdifVersionString};
 	}
@@ -64,11 +63,11 @@ function parseFileOptions(options: FileOptions, cdifVersion: number) {
 function validateCdifVersionString(cdifVersionString: string, cdifVersion: number): void {
 	const match = cdifVersionString.match(/^(?<major>0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))*$/s);
 	if (!match) {
-		throw new CDIFError(`Invalid cDIF version string "${cdifVersionString}"`);
+		throw new RangeError(`Invalid cDIF version string "${cdifVersionString}"`);
 	}
 	const major: number = parseInt(match.groups!.major);
 	if (major !== cdifVersion) {
-		throw new CDIFError(`cDIF file formatter version mismatch (expected ${cdifVersion}, got ${major})`);
+		throw new Error(`cDIF file formatter version mismatch (expected ${cdifVersion}, got ${major})`);
 	}
 }
 

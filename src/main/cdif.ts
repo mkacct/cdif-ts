@@ -25,7 +25,7 @@ export default class CDIF {
 	/**
 	 * Create an instance of the cDIF parser/serializer.
 	 * @param options customize the behavior of the parser and/or serializer
-	 * @throws {CDIFError} if `options` is invalid
+	 * @throws {Error} if `options` is invalid
 	 */
 	public constructor(options?: CDIFOptions) {
 		if (!ss.is(options, struct_CDIFOptions)) {throw new TypeError(`options must be a valid CDIFOptions object`);}
@@ -69,7 +69,7 @@ export default class CDIF {
 	 * @param options customize the behavior of the file formatter
 	 * @returns `value` converted to a cDIF file string
 	 * @note if `options` is not set, behavior is equivalent to `serialize()`
-	 * @throws {CDIFError} if `options` is invalid
+	 * @throws {Error} if `options` is invalid
 	 * @throws {CDIFError} if any value is a `CDIFPrimitiveValue` created with the wrong cDIF version
 	 * @throws {CDIFError} if a preprocessor function tries to omit the root value, or, in strict mode, a collection value
 	 * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name
