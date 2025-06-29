@@ -44,7 +44,7 @@ export default class CDIF {
 		return this.parseImpl(cdifText);
 	}
 
-	private parseImpl(cdifText: string) {
+	private parseImpl(cdifText: string): unknown {
 		throw new Error(`NYI`);
 	}
 
