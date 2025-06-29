@@ -11,6 +11,16 @@
 	"files": ["build/main"],
 	"main": "build/main/main.js",
 	"types": "build/main/main.d.ts",
+	"exports": {
+		".": {
+			"default": "./build/main/main.js",
+			"types": "./build/main/main.d.ts"
+		},
+		"./preprocessors": {
+			"default": "./build/main/serializer/preprocessors.js",
+			"types": "./build/main/serializer/preprocessors.d.ts"
+		}
+	},
 	"scripts": {
 		"prebuild": "rimraf build",
 		"build": "npx tsc",
