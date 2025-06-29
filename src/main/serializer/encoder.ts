@@ -31,18 +31,21 @@ type PreprocessorResult = (
  * @param value the value to serialize
  * @param options
  * @param cdifVersion
+ * @param refs set of parent objects, for detecting circular references
  * @returns the serialized `CDIFValue`, or `undefined` if the value should be omitted
  * @throws {CDIFError} if `value` is a `CDIFPrimitiveValue` created with the wrong cDIF version
  * @throws {CDIFError} in strict mode, if a preprocessor function tries to omit a collection value
  * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name
  * @throws {CDIFSyntaxError} if a preprocessor function returns a type name that is not a valid cDIF type name
+ * @throws {CDIFTypeError} if a circular reference is encountered
  * @throws {CDIFTypeError} in strict mode, if `value` is of a disallowed type
  */
 export function encodeCdifValue(
 	key: null | string | number,
 	value: unknown,
 	options: Required<SerializerOptions>,
-	cdifVersion: number
+	cdifVersion: number,
+	refs: WeakSet<object> = new WeakSet<object>()
 ): CDIFValue | undefined {
 	if (value instanceof CDIFPrimitiveValue) {
 		if (value.cdifVersion !== cdifVersion) {
@@ -56,40 +59,53 @@ export function encodeCdifValue(
 	value = res.value;
 	if (isObject(value)) {
 		const type: string | undefined = ("type" in res) ? res.type : undefined;
-		return encodeCdifStructure(value, type, options, cdifVersion);
+		if (refs.has(value)) {throw new CDIFTypeError(`Circular structure detected`);}
+		refs.add(value);
+		const structure: CDIFStructure = Array.isArray(value)
+			? encodeCdifCollection(value, type, options, cdifVersion, refs)
+			: encodeCdifObject(value, type, options, cdifVersion, refs);
+		refs.delete(value);
+		return structure;
 	} else {
 		return encodeCdifPrimitiveValue(value, options, cdifVersion);
 	}
 }
 
-function encodeCdifStructure(
+function encodeCdifCollection(
+	obj: ReadonlyArray<unknown>,
+	type: string | undefined,
+	options: Required<SerializerOptions>,
+	cdifVersion: number,
+	refs: WeakSet<object>
+): CDIFCollection {
+	const data: CDIFValue[] = [];
+	for (const [key, value] of (obj as unknown[]).entries()) { // enumerable own properties only
+		const encodedValue = encodeCdifValue(key, value, options, cdifVersion, refs);
+		if (isValue(encodedValue)) {
+			data.push(encodedValue);
+		} else {
+			if (options.strict) {throw new CDIFError(`Collection value was omitted`);}
+			data.push(new CDIFNull(cdifVersion));
+		}
+	}
+	return new CDIFCollection(data, type);
+}
+
+function encodeCdifObject(
 	obj: object,
 	type: string | undefined,
 	options: Required<SerializerOptions>,
-	cdifVersion: number
-): CDIFStructure {
-	if (Array.isArray(obj)) {
-		const data: CDIFValue[] = [];
-		for (const [key, value] of (obj as unknown[]).entries()) { // enumerable own properties only
-			const encodedValue = encodeCdifValue(key, value, options, cdifVersion);
-			if (isValue(encodedValue)) {
-				data.push(encodedValue);
-			} else {
-				if (options.strict) {throw new CDIFError(`Collection value was omitted`);}
-				data.push(new CDIFNull(cdifVersion));
-			}
-		}
-		return new CDIFCollection(data, type);
-	} else {
-		const data = new Map<string, CDIFValue>();
-		for (const [key, value] of Object.entries(obj) as [string, unknown][]) { // enumerable own properties only
-			const encodedValue = encodeCdifValue(key, value, options, cdifVersion);
-			if (isValue(encodedValue)) {
-				data.set(key, encodedValue);
-			} // else omit property (regardless of strict mode)
-		}
-		return new CDIFObject(data, type);
+	cdifVersion: number,
+	refs: WeakSet<object>
+): CDIFObject {
+	const data = new Map<string, CDIFValue>();
+	for (const [key, value] of Object.entries(obj) as [string, unknown][]) { // enumerable own properties only
+		const encodedValue = encodeCdifValue(key, value, options, cdifVersion, refs);
+		if (isValue(encodedValue)) {
+			data.set(key, encodedValue);
+		} // else omit property (regardless of strict mode)
 	}
+	return new CDIFObject(data, type);
 }
 
 function runPreprocessors(

@@ -187,6 +187,20 @@ suite("CDIF.serialize", (): void => {
 	}
 
 	{
+		const cdif: CDIF = cdifs.default;
+		test("Circular reference detection", (): void => {
+			const child = {a: 1};
+			cdif.serialize({a: child, b: child}); // should not throw (duplicate reference, but not circular)
+
+			let circular: {a: unknown} = {a: null};
+			circular.a = circular;
+			assert.throws((): void => {
+				cdif.serialize(circular);
+			}, CDIFTypeError);
+		});
+	}
+
+	{
 		const cdif: CDIF = new CDIF({cdifVersion: VER, serializer: {
 			indent: "..",
 			structureEntrySeparator: ",",

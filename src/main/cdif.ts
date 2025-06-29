@@ -56,6 +56,7 @@ export default class CDIF {
 	 * @throws {CDIFError} if a preprocessor function tries to omit the root value, or, in strict mode, a collection value
 	 * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name
 	 * @throws {CDIFSyntaxError} if a preprocessor function returns a type name that is not a valid cDIF type name
+	 * @throws {CDIFTypeError} if a circular reference is encountered
 	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
 	public serialize(value: unknown): string {
