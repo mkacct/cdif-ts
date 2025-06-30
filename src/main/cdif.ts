@@ -91,7 +91,7 @@ export default class CDIF {
 
 	private serializeImpl(value: unknown, fileOptions?: FileOptions) {
 		const encodedValue: CDIFValue | undefined = encodeCdifValue(null, value, this.serializerOptions, this.cdifVersion);
-		if (!isValue(encodedValue)) {throw new CDIFError(`Root value was omitted`);}
+		if (!encodedValue) {throw new CDIFError(`Root value was omitted`);}
 		const cdifText: string = stringifyCdifValue(encodedValue, this.serializerOptions);
 		return fileOptions ? formatCdifFile(cdifText, fileOptions, this.cdifVersion) : cdifText;
 	}

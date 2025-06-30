@@ -79,7 +79,7 @@ function encodeCdifCollection(
 	const data: CDIFValue[] = [];
 	for (const [key, value] of (obj as unknown[]).entries()) { // enumerable own properties only
 		const encodedValue = encodeCdifValue(key, value, options, cdifVersion, refs);
-		if (isValue(encodedValue)) {
+		if (encodedValue) {
 			data.push(encodedValue);
 		} else {
 			if (options.strict) {throw new CDIFError(`Collection value was omitted`);}
@@ -99,7 +99,7 @@ function encodeCdifObject(
 	const data = new Map<string, CDIFValue>();
 	for (const [key, value] of Object.entries(obj) as [string, unknown][]) { // enumerable own properties only
 		const encodedValue = encodeCdifValue(key, value, options, cdifVersion, refs);
-		if (isValue(encodedValue)) {
+		if (encodedValue) {
 			data.set(key, encodedValue);
 		} // else omit property (regardless of strict mode)
 	}
@@ -113,7 +113,7 @@ function runPreprocessors(
 ): PreprocessorResult | typeof CDIF.OMIT_PROPERTY {
 	for (const preprocessor of preprocessors) {
 		const res = preprocessor({key, value});
-		if (isValue(res)) {return res;}
+		if (res) {return res;}
 	}
 	return {value};
 }

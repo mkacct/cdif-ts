@@ -70,7 +70,7 @@ function runPostprocessors(
 ): PostprocessorResult | typeof CDIF.OMIT_PROPERTY {
 	for (const postprocessor of postprocessors) {
 		const res = postprocessor({key, type, value});
-		if (isValue(res)) {return res;}
+		if (res) {return res;}
 	}
 	return {value};
 }
