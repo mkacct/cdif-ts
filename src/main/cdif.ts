@@ -1,8 +1,8 @@
-import {isValue} from "@mkacct/ts-util";
 import * as ss from "superstruct";
 import {CDIFError} from "./errors.js";
 import {CDIFValue} from "./general.js";
-import {CDIFOptions, parseOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
+import {CDIFOptions, parseOptions, ParserOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
+import {decodeCdifValue} from "./parser/decoder.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import {encodeCdifValue} from "./serializer/encoder.js";
 import {FileOptions, formatCdifFile, struct_FileOptions} from "./serializer/file-formatter.js";
@@ -20,6 +20,7 @@ export default class CDIF {
 	public static readonly OMIT_PROPERTY: unique symbol = Symbol("omitProperty");
 
 	private readonly cdifVersion: number;
+	private readonly parserOptions: Required<ParserOptions>;
 	private readonly serializerOptions: Required<SerializerOptions>;
 
 	/**
@@ -31,6 +32,7 @@ export default class CDIF {
 		if (!ss.is(options, struct_CDIFOptions)) {throw new TypeError(`options must be a valid CDIFOptions object`);}
 		const parsedOptions = parseOptions(options);
 		this.cdifVersion = parsedOptions.cdifVersion;
+		this.parserOptions = parsedOptions.parser;
 		this.serializerOptions = parsedOptions.serializer;
 	}
 
@@ -38,6 +40,7 @@ export default class CDIF {
 	 * Converts a cDIF string to a JS value.
 	 * @param cdifText a valid cDIF string (read from a file or otherwise)
 	 * @returns `cdifText` converted to a JS value (usually an object or array)
+	 * @throws {CDIFError} if a postprocessor function tries to omit the root value
 	 */
 	public parse(cdifText: string): unknown {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
@@ -45,7 +48,11 @@ export default class CDIF {
 	}
 
 	private parseImpl(cdifText: string): unknown {
-		throw new Error(`NYI`);
+		throw new Error(`NYI`); // TODO
+		// const parsedCdifValue: CDIFValue = parseCdifText(cdifText, this.parserOptions, this.cdifVersion);
+		// const res: {value: unknown} | undefined = decodeCdifValue(null, parsedCdifValue, this.parserOptions, this.cdifVersion);
+		// if (!res) {throw new CDIFError(`Root value was omitted`);}
+		// return res.value;
 	}
 
 	/**

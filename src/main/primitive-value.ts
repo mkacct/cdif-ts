@@ -15,10 +15,14 @@ export default abstract class CDIFPrimitiveValue {
 		this.cdifVersion = cdifVersion;
 	}
 
-	/**
-	 * @returns the cDIF text representation of the primitive value
-	 */
+	/** The cDIF text representation of the primitive value */
 	public abstract get cdifText(): string;
+
+	/**
+	 * The parsed JS value
+	 * @note this is primarily used for the decoder; some behavior may be unexpected (ex. integers are returned as `bigint`)
+	 */
+	public abstract get parsed(): unknown;
 
 }
 
@@ -86,6 +90,10 @@ export class CDIFInteger extends CDIFPrimitiveValue {
 		return this.value.toString();
 	}
 
+	public override get parsed(): bigint {
+		return this.value;
+	}
+
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFInteger {
 		const {isNegative, withoutSign} = checkSign(cdifText);
 		if (/^(?:\d(?:_?\d)*|0[bB][01](?:_?[01])*|0[oO][0-7](?:_?[0-7])*|0[xX][\da-fA-F](?:_?[\da-fA-F])*)$/us.test(withoutSign)) {
@@ -110,6 +118,10 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 
 	public override get cdifText(): string {
 		return `${this.isNegative ? "-" : ""}${this.significand}${(this.exponent !== 0n) ? `e${this.exponent.toString()}` : ""}`;
+	}
+
+	public override get parsed(): number {
+		return parseFloat(`${this.isNegative ? "-" : ""}${this.significand}e${this.exponent.toString()}`);
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFFloat {
@@ -156,6 +168,10 @@ export class CDIFInfinite extends CDIFPrimitiveValue {
 
 	public override get cdifText(): string {
 		return `${this.isNegative ? "-" : ""}infinity`;
+	}
+
+	public override get parsed(): number {
+		return (this.isNegative ? -1 : 1) * Infinity;
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFInfinite {
@@ -207,6 +223,38 @@ function canonicalizeCharEntity(entity: string, enclosingQuote: "'" | "\""): str
 }
 
 /**
+ * @param entity a single cDIF character entity
+ * @returns the actual single character represented by the entity
+ * @throws {RangeError} if the input is not a single valid cDIF character entity
+ */
+function parseCharEntity(entity: string): string {
+	if (entity[0] === "\\") { // escape sequence
+		return sw(entity.slice(1), [
+			["b", () => "\b"],
+			["f", () => "\f"],
+			["n", () => "\n"],
+			["r", () => "\r"],
+			["t", () => "\t"],
+			["v", () => "\v"],
+			["'", () => "'"],
+			["\"", () => "\""],
+			["\\", () => "\\"],
+			["/", () => "/"],
+			[() => /^\\u[0-9a-fA-F]{4}$/us.test(entity), () => String.fromCodePoint(parseInt(entity.slice(2), 16))],
+			[() => /^\\U[0-9a-fA-F]{8}$/us.test(entity), () => String.fromCodePoint(parseInt(entity.slice(2), 16))],
+			[sw.DEFAULT, () => {throw new RangeError(`Invalid escape sequence`);}]
+		]);
+	} else if (/^\P{C}$/us.test(entity)) { // printable character
+		return entity;
+	} else { // something else (ex. control character)
+		return sw(entity, [
+			["\t", () => "\t"], // tab is the only allowed control character
+			[sw.DEFAULT, () => {throw new RangeError(`Invalid character entity`);}]
+		]);
+	}
+}
+
+/**
  * Returns the expected length of a cDIF escape sequence for a given identifier character (the character after the backslash).
  * @param idChar the character after the backslash
  * @returns the expected length of the escape sequence
@@ -229,6 +277,10 @@ export class CDIFCharacter extends CDIFPrimitiveValue {
 
 	public override get cdifText(): string {
 		return `'${this.entity}'`;
+	}
+
+	public override get parsed(): string {
+		return parseCharEntity(this.entity);
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFCharacter {
@@ -263,6 +315,10 @@ export class CDIFString extends CDIFPrimitiveValue {
 
 	public override get cdifText(): string {
 		return `"${this.entities.join("")}"`;
+	}
+
+	public override get parsed(): string {
+		return this.entities.map((ent: string): string => parseCharEntity(ent)).join("");
 	}
 
 	private static readonly NotBlockStringError = class extends PrimitiveValueError {};
@@ -406,6 +462,10 @@ export class CDIFBoolean extends CDIFPrimitiveValue {
 		return this.value ? "true" : "false";
 	}
 
+	public override get parsed(): boolean {
+		return this.value;
+	}
+
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFBoolean {
 		switch (cdifText) {
 			case "true": {return new CDIFBoolean(true, cdifVersion);}
@@ -424,6 +484,10 @@ export class CDIFNull extends CDIFPrimitiveValue {
 
 	public override get cdifText(): string {
 		return "null";
+	}
+
+	public override get parsed(): null {
+		return null;
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFNull {

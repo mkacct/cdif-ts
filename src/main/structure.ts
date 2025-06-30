@@ -2,7 +2,8 @@ import {isValue} from "@mkacct/ts-util";
 import {CDIFSyntaxError} from "./errors.js";
 import {CDIFValue} from "./general.js";
 import {isValidName, isValidTypeId} from "./identifiers.js";
-import {SerializerOptions} from "./options.js";
+import {ParserOptions, SerializerOptions} from "./options.js";
+import {decodeCdifValue} from "./parser/decoder.js";
 import {PrettyTextWriter, writeCdifValueText} from "./serializer/stringifier.js";
 
 /**
@@ -11,7 +12,7 @@ import {PrettyTextWriter, writeCdifValueText} from "./serializer/stringifier.js"
 export default abstract class CDIFStructure {
 
 	/** The structure's type name, or `undefined` if it is anonymous. */
-	protected readonly type?: string = undefined;
+	public readonly type?: string = undefined;
 
 	protected constructor(type?: string) {
 		if (isValue(type)) {
@@ -22,6 +23,13 @@ export default abstract class CDIFStructure {
 
 	/** The strings used to open and close the structure in cDIF text */
 	protected abstract get brackets(): [string, string];
+
+	/**
+	 * @param options
+	 * @param cdifVersion
+	 * @returns the decoded JS value
+	 */
+	public abstract decode(options: Required<ParserOptions>, cdifVersion: number): unknown;
 
 	/**
 	 * Write the structure as cDIF text to `writer`.
@@ -54,6 +62,17 @@ export class CDIFCollection extends CDIFStructure {
 
 	protected override get brackets(): [string, string] {return ["[", "]"];}
 
+	public override decode(options: Required<ParserOptions>, cdifVersion: number): unknown {
+		const arr: unknown[] = new Array(this.data.length);
+		for (const [i, value] of this.data.entries()) {
+			const res: {value: unknown} | undefined = decodeCdifValue(i, value, options, cdifVersion);
+			if (res) {
+				arr[i] = res.value;
+			}
+		}
+		return arr;
+	}
+
 	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean {
 		if (this.data.length === 0) {return false;}
 		for (const [i, value] of this.data.entries()) {
@@ -82,6 +101,17 @@ export class CDIFObject extends CDIFStructure {
 	}
 
 	protected override get brackets(): [string, string] {return ["{", "}"];}
+
+	public override decode(options: Required<ParserOptions>, cdifVersion: number): unknown {
+		const entries: [string, unknown][] = [];
+		for (const [key, value] of this.data.entries()) {
+			const res: {value: unknown} | undefined = decodeCdifValue(key, value, options, cdifVersion);
+			if (res) {
+				entries.push([key, res.value]);
+			}
+		}
+		return Object.fromEntries(entries);
+	}
 
 	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean {
 		if (this.data.size === 0) {return false;}
