@@ -15,7 +15,7 @@ export function filterObjectProperties(names: ReadonlyArray<string>): Serializer
 	if (!ss.is(names, ss_readonlyArray(ss.string()))) {throw new TypeError(`names must be an array of strings`);}
 	return ({key}) => {
 		if ((typeof key === "string") && !names.includes(key)) {
-			return CDIF.SERIALIZER_OMIT_PROPERTY;
+			return CDIF.OMIT_PROPERTY;
 		}
 	};
 }

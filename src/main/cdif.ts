@@ -16,8 +16,8 @@ export const CDIF_LATEST: number = 1;
  */
 export default class CDIF {
 
-	/** When returned from a serializer preprocessor function, denotes that the property should be omitted from serialization */
-	public static readonly SERIALIZER_OMIT_PROPERTY: unique symbol = Symbol("serializerOmitProperty");
+	/** When returned from a pre/postprocessor function, denotes that the property should be omitted */
+	public static readonly OMIT_PROPERTY: unique symbol = Symbol("omitProperty");
 
 	private readonly cdifVersion: number;
 	private readonly serializerOptions: Required<SerializerOptions>;

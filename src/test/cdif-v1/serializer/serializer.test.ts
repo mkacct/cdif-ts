@@ -20,7 +20,7 @@ suite("CDIF.serialize", (): void => {
 		},
 		({key}) => { // omission example
 			if ((typeof key === "string") && key.startsWith("ignore_")) {
-				return CDIF.SERIALIZER_OMIT_PROPERTY;
+				return CDIF.OMIT_PROPERTY;
 			}
 		},
 		({key, value}) => { // typing example
@@ -161,7 +161,7 @@ suite("CDIF.serialize", (): void => {
 				},
 				({value}) => {
 					if (value === "PLEASE OMIT ME THANK YOU") {
-						return CDIF.SERIALIZER_OMIT_PROPERTY;
+						return CDIF.OMIT_PROPERTY;
 					}
 				}
 			]

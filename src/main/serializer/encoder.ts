@@ -10,7 +10,7 @@ import CDIFStructure, {CDIFCollection, CDIFObject} from "../structure.js";
 
 /**
  * A function used to customize serialization behavior and/or add type names.
- * @note return `{value: unknown, type?: string}` (`type` is only allowed if `value` is an object) replace the value and/or add a type name, `CDIF.SERIALIZER_OMIT_PROPERTY` to omit the property, or void to try the next preprocessor
+ * @note return `{value: unknown, type?: string}` (`type` is only allowed if `value` is an object) replace the value and/or add a type name, `CDIF.OMIT_PROPERTY` to omit the property, or void to try the next preprocessor
  */
 export type SerializerPreprocessorFunction = ({
 	key, value
@@ -19,7 +19,7 @@ export type SerializerPreprocessorFunction = ({
 	key: null | string | number;
 	/** The value to preprocess */
 	value: unknown;
-}) => PreprocessorResult | typeof CDIF.SERIALIZER_OMIT_PROPERTY | void;
+}) => PreprocessorResult | typeof CDIF.OMIT_PROPERTY | void;
 
 type PreprocessorResult = (
 	{value: unknown}
@@ -55,7 +55,7 @@ export function encodeCdifValue(
 	}
 
 	const res = runPreprocessors(key, value, options.preprocessors);
-	if (res === CDIF.SERIALIZER_OMIT_PROPERTY) {return undefined;}
+	if (res === CDIF.OMIT_PROPERTY) {return undefined;}
 	value = res.value;
 	if (isObject(value)) {
 		const type: string | undefined = ("type" in res) ? res.type : undefined;
@@ -112,7 +112,7 @@ function runPreprocessors(
 	key: null | string | number,
 	value: unknown,
 	preprocessors: ReadonlyArray<SerializerPreprocessorFunction>
-): PreprocessorResult | typeof CDIF.SERIALIZER_OMIT_PROPERTY {
+): PreprocessorResult | typeof CDIF.OMIT_PROPERTY {
 	for (const preprocessor of preprocessors) {
 		const res = preprocessor({key, value});
 		if (isValue(res)) {return res;}
