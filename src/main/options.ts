@@ -72,20 +72,10 @@ export function parseOptions(options?: CDIFOptions): { // return type is basical
 	serializer: Required<SerializerOptions>;
 } {
 	options = options ?? {};
-	const structureSep = options.serializer?.structureEntrySeparator ?? ",";
 	return {
 		cdifVersion: parseCdifVersion(options.cdifVersion),
-		parser: {
-			useBigInt: options.parser?.useBigInt ?? false,
-			postprocessors: options.parser?.postprocessors ?? []
-		},
-		serializer: {
-			strict: options.serializer?.strict ?? true,
-			indent: options.serializer?.indent ?? null,
-			structureEntrySeparator: structureSep,
-			addFinalStructureEntrySeparator: options.serializer?.addFinalStructureEntrySeparator ?? (structureSep === ";"),
-			preprocessors: options.serializer?.preprocessors ?? []
-		}
+		parser: parseParserOptions(options.parser),
+		serializer: parseSerializerOptions(options.serializer)
 	};
 }
 
@@ -96,6 +86,26 @@ function parseCdifVersion(cdifVersion?: number) : number {
 	}
 	if (cdifVersion > CDIF_LATEST) {throw new RangeError(`cDIF version ${cdifVersion} is not known`);}
 	return cdifVersion;
+}
+
+export function parseParserOptions(parserOptions?: ParserOptions): Required<ParserOptions> {
+	parserOptions = parserOptions ?? {};
+	return {
+		useBigInt: parserOptions.useBigInt ?? false,
+		postprocessors: parserOptions.postprocessors ?? []
+	};
+}
+
+export function parseSerializerOptions(serializerOptions?: SerializerOptions): Required<SerializerOptions> {
+	serializerOptions = serializerOptions ?? {};
+	const structureSep = serializerOptions.structureEntrySeparator ?? ",";
+	return {
+		strict: serializerOptions.strict ?? true,
+		indent: serializerOptions.indent ?? null,
+		structureEntrySeparator: structureSep,
+		addFinalStructureEntrySeparator: serializerOptions.addFinalStructureEntrySeparator ?? (structureSep === ";"),
+		preprocessors: serializerOptions.preprocessors ?? []
+	};
 }
 
 // type validation:
