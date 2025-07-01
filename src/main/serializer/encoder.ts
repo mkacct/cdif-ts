@@ -47,7 +47,9 @@ export function encodeCdifValue(
 ): CDIFValue | undefined {
 	if (value instanceof CDIFPrimitiveValue) {
 		if (value.cdifVersion !== cdifVersion) {
-			throw new CDIFError(`cDIF primitive value version mismatch (expected ${cdifVersion}, got ${value.cdifVersion})`);
+			throw new CDIFError(
+				`cDIF primitive value version mismatch (expected ${cdifVersion}, got ${value.cdifVersion})`
+			);
 		}
 		return value; // already encoded
 	}
@@ -160,7 +162,9 @@ function encodeCdifPrimitiveValue(
 }
 
 function encodeCdifFloat(strRep: string, cdifVersion: number): CDIFFloat {
-	const match = strRep.match(/^(?<sign>[+-])?(?<significand>(?:0|[1-9]\d*)(?:\.\d*[1-9])?)(?:e(?<exponent>[+-]?\d+))?$/us);
+	const match = strRep.match(
+		/^(?<sign>[+-])?(?<significand>(?:0|[1-9]\d*)(?:\.\d*[1-9])?)(?:e(?<exponent>[+-]?\d+))?$/us
+	);
 	if (!match) {throw new Error(`Failed to parse floating point representation: "${strRep}"`);}
 	let {sign, significand, exponent} : {
 		sign?: string;
@@ -200,4 +204,6 @@ function encodeCdifString(str: string, cdifVersion: number): CDIFString {
 
 // type validation:
 
-export const struct_SerializerPreprocessorFunction = ss_defineFunc<SerializerPreprocessorFunction>("SerializerPreprocessorFunction", 1);
+export const struct_SerializerPreprocessorFunction = ss_defineFunc<SerializerPreprocessorFunction>(
+	"SerializerPreprocessorFunction", 1
+);

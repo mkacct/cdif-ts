@@ -1,4 +1,3 @@
-import {isValue} from "@mkacct/ts-util";
 import CDIF from "../cdif.js";
 import {ss_defineFunc} from "../extensions/ss-util.js";
 import {CDIFValue} from "../general.js";
@@ -44,7 +43,9 @@ export function decodeCdifValue(
 	const decoded: unknown = (value instanceof CDIFPrimitiveValue)
 		? decodeCdifPrimitiveValue(value, options, cdifVersion)
 		: value.decode(options, cdifVersion);
-	const res: PostprocessorResult | typeof CDIF.OMIT_PROPERTY = runPostprocessors(key, decoded, type, options.postprocessors);
+	const res: PostprocessorResult | typeof CDIF.OMIT_PROPERTY = runPostprocessors(
+		key, decoded, type, options.postprocessors
+	);
 	if (res === CDIF.OMIT_PROPERTY) {return undefined;}
 	return res;
 }
@@ -54,7 +55,8 @@ function decodeCdifPrimitiveValue(
 	options: Required<ParserOptions>,
 	cdifVersion: number
 ): unknown {
-	if (value.cdifVersion !== cdifVersion) {// shouldn't happen in the decoder; its values are from the parser using the same version
+	if (value.cdifVersion !== cdifVersion) {
+		// shouldn't happen in the decoder; its values are from the parser using the same version
 		throw new Error(`cDIF primitive value version mismatch (expected ${cdifVersion}, got ${value.cdifVersion})`);
 	}
 	let res: unknown = value.parsed;
@@ -77,4 +79,6 @@ function runPostprocessors(
 
 // type validation:
 
-export const struct_ParserPostprocessorFunction = ss_defineFunc<ParserPostprocessorFunction>("ParserPostprocessorFunction", 1);
+export const struct_ParserPostprocessorFunction = ss_defineFunc<ParserPostprocessorFunction>(
+	"ParserPostprocessorFunction", 1
+);

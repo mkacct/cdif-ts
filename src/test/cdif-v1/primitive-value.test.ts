@@ -177,8 +177,8 @@ suite("CDIF.createPrimitiveValue", (): void => {
 		assert.equal(cdif.createPrimitiveValue("\"\"\"foo\"\"\"").cdifText, "\"foo\"");
 		assert.equal(cdif.createPrimitiveValue("\"\"\"foo\nbar\"\"\"").cdifText, "\"foo\\nbar\"");
 		assert.equal(cdif.createPrimitiveValue("\"\"\"foo\nbar\nbaz\"\"\"").cdifText, "\"foo\\nbar\\nbaz\"");
-		assert.equal(cdif.createPrimitiveValue(
-			"\"\"\"\n\tfunction foo() {\n\t\treturn \"hi\";\n\t}\n\n\tlet bar = \"\\u0048ello \\\n\tworld\";\n\"\"\"").cdifText,
+		assert.equal(
+			cdif.createPrimitiveValue("\"\"\"\n\tfunction foo() {\n\t\treturn \"hi\";\n\t}\n\n\tlet bar = \"\\u0048ello \\\n\tworld\";\n\"\"\"").cdifText,
 			"\"function foo() {\\n\\treturn \\\"hi\\\";\\n}\\n\\nlet bar = \\\"\\u0048ello world\\\";\""
 		);
 	});

@@ -15,7 +15,9 @@ export function stringifyCdifValue(value: CDIFValue, options: Required<Serialize
 	return writer.text;
 }
 
-export function writeCdifValueText(writer: PrettyTextWriter, value: CDIFValue, options: Required<SerializerOptions>): void {
+export function writeCdifValueText(
+	writer: PrettyTextWriter, value: CDIFValue, options: Required<SerializerOptions>
+): void {
 	if (value instanceof CDIFPrimitiveValue) {
 		writer.write(value.cdifText);
 	} else { // value instanceof CDIFStructure

@@ -96,7 +96,9 @@ export class CDIFInteger extends CDIFPrimitiveValue {
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFInteger {
 		const {isNegative, withoutSign} = checkSign(cdifText);
-		if (/^(?:\d(?:_?\d)*|0[bB][01](?:_?[01])*|0[oO][0-7](?:_?[0-7])*|0[xX][\da-fA-F](?:_?[\da-fA-F])*)$/us.test(withoutSign)) {
+		if (/^(?:\d(?:_?\d)*|0[bB][01](?:_?[01])*|0[oO][0-7](?:_?[0-7])*|0[xX][\da-fA-F](?:_?[\da-fA-F])*)$/us.test(
+			withoutSign
+		)) {
 			const withoutSeparators: string = withoutSign.replace(/_/g, "");
 			const absoluteValue: bigint = BigInt(withoutSeparators);
 			return new CDIFInteger(isNegative ? (-absoluteValue) : absoluteValue, cdifVersion);
@@ -113,11 +115,19 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		cdifVersion: number
 	) {
 		super(cdifVersion);
-		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {throw new Error(`Invalid significand: ${significand}`);}
+		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {
+			throw new Error(`Invalid significand: ${significand}`);
+		}
 	}
 
 	public override get cdifText(): string {
-		return `${this.isNegative ? "-" : ""}${this.significand}${(this.exponent !== 0n) ? `e${this.exponent.toString()}` : ""}`;
+		return `${
+			this.isNegative ? "-" : ""
+		}${
+			this.significand
+		}${
+			(this.exponent !== 0n) ? `e${this.exponent.toString()}` : ""
+		}`;
 	}
 
 	public override get parsed(): number {
@@ -255,7 +265,8 @@ function parseCharEntity(entity: string): string {
 }
 
 /**
- * Returns the expected length of a cDIF escape sequence for a given identifier character (the character after the backslash).
+ * Returns the expected length of a cDIF escape sequence for a given identifier character
+ * (the character after the backslash).
  * @param idChar the character after the backslash
  * @returns the expected length of the escape sequence
  * @note doesn't validate the identifier character (if it's invalid, returns 2 anyway)
@@ -360,7 +371,9 @@ export class CDIFString extends CDIFPrimitiveValue {
 
 	private static splitIntoEntities(text: string, isVerbatim: boolean, delimiter: string): string[] {
 		const delimiterEntities: string[] = splitIntoUnicodeChars(delimiter);
-		const entities: string[] = isVerbatim ? CDIFString.splitVerbatimIntoEntities(text) : CDIFString.splitEscapedIntoEntities(text);
+		const entities: string[] = isVerbatim
+			? CDIFString.splitVerbatimIntoEntities(text)
+			: CDIFString.splitEscapedIntoEntities(text);
 		if (Arrays.includesSubarray(entities, delimiterEntities)) {throw new PrimitiveValueError();}
 		return entities;
 	}

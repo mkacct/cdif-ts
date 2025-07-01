@@ -49,7 +49,9 @@ export default class CDIF {
 	private parseImpl(cdifText: string): unknown {
 		throw new Error(`NYI`); // TODO
 		// const parsedCdifValue: CDIFValue = parseCdifText(cdifText, this.parserOptions, this.cdifVersion);
-		// const res: {value: unknown} | undefined = decodeCdifValue(null, parsedCdifValue, this.parserOptions, this.cdifVersion);
+		// const res: {value: unknown} | undefined = decodeCdifValue(
+		// 	null, parsedCdifValue, this.parserOptions, this.cdifVersion
+		// );
 		// if (!res) {throw new CDIFError(`Root value was omitted`);}
 		// return res.value;
 	}
@@ -89,7 +91,9 @@ export default class CDIF {
 	}
 
 	private serializeImpl(value: unknown, fileOptions?: FileOptions) {
-		const encodedValue: CDIFValue | undefined = encodeCdifValue(null, value, this.serializerOptions, this.cdifVersion);
+		const encodedValue: CDIFValue | undefined = encodeCdifValue(
+			null, value, this.serializerOptions, this.cdifVersion
+		);
 		if (!encodedValue) {throw new CDIFError(`Root value was omitted`);}
 		const cdifText: string = stringifyCdifValue(encodedValue, this.serializerOptions);
 		return fileOptions ? formatCdifFile(cdifText, fileOptions, this.cdifVersion) : cdifText;
