@@ -2,7 +2,6 @@ import * as ss from "superstruct";
 import {CDIFError} from "./errors.js";
 import {CDIFValue} from "./general.js";
 import {CDIFOptions, parseOptions, ParserOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
-import {decodeCdifValue} from "./parser/decoder.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import {encodeCdifValue} from "./serializer/encoder.js";
 import {FileOptions, formatCdifFile, struct_FileOptions} from "./serializer/file-formatter.js";
