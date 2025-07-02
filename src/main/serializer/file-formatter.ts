@@ -47,7 +47,7 @@ function parseFileOptions(options: FileOptions, cdifVersion: number) {
 	if (isValue(options.cdifVersionString) && !options.allowUnexpectedVersionString) {
 		validateCdifVersionString(options.cdifVersionString, cdifVersion);
 	}
-	let headerData: {cdifVersionString: string;} | null = null;
+	let headerData: {cdifVersionString: string} | null = null;
 	if (addHeader) {
 		if (!isValue(options.cdifVersionString)) {
 			throw new Error(`If addHeader is true, cdifVersionString must be supplied`);
