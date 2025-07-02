@@ -29,7 +29,7 @@ export default abstract class CDIFStructure {
 	 * @param cdifVersion
 	 * @returns the decoded JS value
 	 */
-	public abstract decode(options: Required<ParserOptions>, cdifVersion: number): unknown;
+	public abstract decode(options: Required<ParserOptions>, cdifVersion: number): object;
 
 	/**
 	 * Write the structure as cDIF text to `writer`.
@@ -62,7 +62,7 @@ export class CDIFCollection extends CDIFStructure {
 
 	protected override get brackets(): [string, string] {return ["[", "]"];}
 
-	public override decode(options: Required<ParserOptions>, cdifVersion: number): unknown {
+	public override decode(options: Required<ParserOptions>, cdifVersion: number): unknown[] {
 		const arr: unknown[] = new Array(this.data.length);
 		for (const [i, value] of this.data.entries()) {
 			const res: {value: unknown} | undefined = decodeCdifValue(i, value, options, cdifVersion);
@@ -102,7 +102,7 @@ export class CDIFObject extends CDIFStructure {
 
 	protected override get brackets(): [string, string] {return ["{", "}"];}
 
-	public override decode(options: Required<ParserOptions>, cdifVersion: number): unknown {
+	public override decode(options: Required<ParserOptions>, cdifVersion: number): Record<string, unknown> {
 		const entries: [string, unknown][] = [];
 		for (const [key, value] of this.data.entries()) {
 			const res: {value: unknown} | undefined = decodeCdifValue(key, value, options, cdifVersion);

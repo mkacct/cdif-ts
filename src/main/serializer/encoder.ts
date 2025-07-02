@@ -54,7 +54,7 @@ export function encodeCdifValue(
 		return value; // already encoded
 	}
 
-	const res: PreprocessorResult | typeof CDIF.OMIT_PROPERTY = runPreprocessors(key, value, options.preprocessors);
+	const res: PreprocessorResult | typeof CDIF.OMIT_PROPERTY = runPreprocessors({key, value}, options.preprocessors);
 	if (res === CDIF.OMIT_PROPERTY) {return undefined;}
 	value = res.value;
 	if (isObject(value)) {
@@ -109,15 +109,14 @@ function encodeCdifObject(
 }
 
 function runPreprocessors(
-	key: null | string | number,
-	value: unknown,
+	data: Parameters<SerializerPreprocessorFunction>[0],
 	preprocessors: ReadonlyArray<SerializerPreprocessorFunction>
 ): PreprocessorResult | typeof CDIF.OMIT_PROPERTY {
 	for (const preprocessor of preprocessors) {
-		const res = preprocessor({key, value});
+		const res = preprocessor(data);
 		if (res) {return res;}
 	}
-	return {value};
+	return {value: data.value};
 }
 
 function encodeCdifPrimitiveValue(

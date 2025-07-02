@@ -14,6 +14,8 @@ export type ParserPostprocessorFunction = (data: {
 	key: null | string | number;
 } & (
 	{
+		/** The type name of the structure */
+		type: undefined;
 		/** The value to postprocess */
 		value: unknown;
 	} | {
@@ -39,12 +41,17 @@ export function decodeCdifValue(
 	options: Required<ParserOptions>,
 	cdifVersion: number
 ): {value: unknown} | undefined {
-	const type: string | undefined = (value instanceof CDIFStructure) ? value.type : undefined;
-	const decoded: unknown = (value instanceof CDIFPrimitiveValue)
-		? decodeCdifPrimitiveValue(value, options, cdifVersion)
-		: value.decode(options, cdifVersion);
+	const decodedValueWithType: {type: undefined, value: unknown} | {type: string, value: object} = (
+		value instanceof CDIFStructure
+	) ? {
+		type: value.type,
+		value: value.decode(options, cdifVersion)
+	} : {
+		type: undefined,
+		value: decodeCdifPrimitiveValue(value, options, cdifVersion)
+	};
 	const res: PostprocessorResult | typeof CDIF.OMIT_PROPERTY = runPostprocessors(
-		key, decoded, type, options.postprocessors
+		{key, ...decodedValueWithType}, options.postprocessors
 	);
 	if (res === CDIF.OMIT_PROPERTY) {return undefined;}
 	return res;
@@ -56,7 +63,7 @@ function decodeCdifPrimitiveValue(
 	cdifVersion: number
 ): unknown {
 	if (value.cdifVersion !== cdifVersion) {
-		// shouldn't happen in the decoder; its values are from the parser using the same version
+		// shouldn't happen in the decoder; its values are from the parser which is using the same version
 		throw new Error(`cDIF primitive value version mismatch (expected ${cdifVersion}, got ${value.cdifVersion})`);
 	}
 	let res: unknown = value.parsed;
@@ -65,16 +72,14 @@ function decodeCdifPrimitiveValue(
 }
 
 function runPostprocessors(
-	key: null | string | number,
-	value: unknown,
-	type: string | undefined,
+	data: Parameters<ParserPostprocessorFunction>[0],
 	postprocessors: ReadonlyArray<ParserPostprocessorFunction>
 ): PostprocessorResult | typeof CDIF.OMIT_PROPERTY {
 	for (const postprocessor of postprocessors) {
-		const res = postprocessor({key, type, value});
+		const res = postprocessor(data);
 		if (res) {return res;}
 	}
-	return {value};
+	return {value: data.value};
 }
 
 // type validation:
