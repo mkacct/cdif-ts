@@ -1,3 +1,5 @@
+// CDIF class: the main entry point of the cDIF API
+
 import * as ss from "superstruct";
 import {CDIFError} from "./errors.js";
 import {CDIFValue} from "./general.js";
@@ -13,7 +15,7 @@ export const CDIF_LATEST: number = 1;
 /**
  * Provides functions to parse and serialize cDIF data.
  */
-export default class CDIF {
+export default class CDIF { // The package's default export (exported as default by main.ts)
 
 	/** When returned from a pre/postprocessor function, denotes that the property should be omitted */
 	public static readonly OMIT_PROPERTY: unique symbol = Symbol("omitProperty");

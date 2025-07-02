@@ -1,3 +1,6 @@
+// Types and functions for parsing cDIF options,
+// used when instantiating the CDIF class to configure the behavior of the parser and serializer
+
 import {isValue} from "@mkacct/ts-util";
 import * as ss from "superstruct";
 import {Describe} from "superstruct";

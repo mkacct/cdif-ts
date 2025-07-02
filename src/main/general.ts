@@ -1,3 +1,5 @@
+// Used in various places across the codebase
+
 import CDIFPrimitiveValue from "./primitive-value.js";
 import CDIFStructure from "./structure.js";
 

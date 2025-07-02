@@ -1,3 +1,6 @@
+// File formatter: a component of the serializer used to convert cDIF data strings to cDIF file strings
+// by adding file formatting (ex. "cDIF" directive header)
+
 import {isValue} from "@mkacct/ts-util";
 import * as ss from "superstruct";
 import {Describe} from "superstruct";

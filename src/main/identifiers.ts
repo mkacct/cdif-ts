@@ -1,3 +1,5 @@
+// Functions for validating cDIF names
+
 const NAME_REGEX: RegExp = /^[\p{L}_][\p{L}\d$_]*$/us;
 
 const RESERVED_NAMES: ReadonlyArray<string> = [

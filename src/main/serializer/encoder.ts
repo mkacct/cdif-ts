@@ -1,3 +1,5 @@
+// Encoder: a component of the serializer used to convert JS values to CDIFValue objects
+
 import {between, isValue} from "@mkacct/ts-util";
 import sw from "@mkacct/ts-util/switch";
 import CDIF from "../cdif.js";

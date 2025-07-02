@@ -1,3 +1,5 @@
+// Decoder: a component of the parser used to convert CDIFValue objects to JS values
+
 import CDIF from "../cdif.js";
 import {ss_defineFunc} from "../extensions/ss-util.js";
 import {CDIFValue} from "../general.js";

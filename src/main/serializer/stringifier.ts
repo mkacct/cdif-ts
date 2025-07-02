@@ -1,3 +1,5 @@
+// Stringifier: a component of the serializer used to convert CDIFValue objects to cDIF data strings
+
 import {isValue} from "@mkacct/ts-util";
 import {CDIFValue} from "../general.js";
 import {SerializerOptions} from "../options.js";

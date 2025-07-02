@@ -1,3 +1,5 @@
+// CDIFStructure and its subclasses, used for representing cDIF collections & objects in the parser & serializer
+
 import {isValue} from "@mkacct/ts-util";
 import {CDIFSyntaxError} from "./errors.js";
 import {CDIFValue} from "./general.js";

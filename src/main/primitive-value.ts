@@ -1,3 +1,6 @@
+// CDIFPrimitiveValue and subclasses for each type of primitive value
+// used by the parser, serializer, and possibly also by the user to pre-encode primitive values
+
 import {between, isValue} from "@mkacct/ts-util";
 import Arrays from "@mkacct/ts-util/arrays";
 import sw from "@mkacct/ts-util/switch";
@@ -6,7 +9,7 @@ import {CDIFSyntaxError} from "./errors.js";
 /**
  * An encoded cDIF primitive value.
  */
-export default abstract class CDIFPrimitiveValue {
+export default abstract class CDIFPrimitiveValue { // Exported by main.ts
 
 	/** The major cDIF version */
 	public readonly cdifVersion: number;
