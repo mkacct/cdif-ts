@@ -8,7 +8,7 @@ import {CDIFCharacter, CDIFInteger, CDIFNull, CDIFString} from "../../../main/pr
 import {SerializerPreprocessorFunction} from "../../../main/serializer/encoder.js";
 import {reverseRecord} from "../test-util.js";
 
-suite("CDIF.serialize", (): void => {
+suite("Serialize", (): void => {
 
 	const VER: number = 1;
 

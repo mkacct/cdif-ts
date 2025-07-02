@@ -5,7 +5,7 @@ import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
 import {reverseRecord} from "../test-util.js";
 
-suite("CDIF.serializeFile", (): void => {
+suite("Serialize file", (): void => {
 
 	const VER: number = 1;
 
