@@ -8,6 +8,7 @@ import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import {encodeCdifValue} from "./serializer/encoder.js";
 import {FileOptions, formatCdifFile, struct_FileOptions} from "./serializer/file-formatter.js";
 import {stringifyCdifValue} from "./serializer/stringifier.js";
+import * as symbol from "./symbol.js";
 
 /** Latest cDIF major version known to this implementation */
 export const CDIF_LATEST: number = 1;
@@ -16,6 +17,9 @@ export const CDIF_LATEST: number = 1;
  * Provides functions to parse and serialize cDIF data.
  */
 export default class CDIF { // The package's default export (exported as default by main.ts)
+
+	/** "Protocol" symbols used by the cDIF API */
+	public static readonly Symbol = {...symbol} as const;
 
 	/** When returned from a pre/postprocessor function, denotes that the property should be omitted */
 	public static readonly OMIT_PROPERTY: unique symbol = Symbol("omitProperty");

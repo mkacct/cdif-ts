@@ -2,18 +2,9 @@
 
 import * as ss from "superstruct";
 import CDIF from "../cdif.js";
-import {ss_readonlyArray} from "../extensions/ss-util.js";
-import {SerializerPreprocessorFunction} from "./encoder.js";
+import {ss_defineFunc, ss_readonlyArray} from "../extensions/ss-util.js";
 import {isObject} from "../general.js";
-
-export const CDIFPreprocessorsSymbol = {
-	/**
-	 * A method that will be called as a serializer preprocessor function for an object
-	 * when using `usePreprocessMethods()`. (Must be a valid `SerializerPreprocessorFunction`.)
-	 * @note the serializer doesn't look for this method by default; you must be using `usePreprocessMethods()`!
-	 */
-	cdifPreprocess: Symbol("cdifPreprocess")
-} as const;
+import {SerializerPreprocessorFunction} from "./encoder.js";
 
 /**
  * Serializer preprocessor that omits all properties in an object (and any nested objects) other than those specified.
@@ -46,26 +37,48 @@ export function useIntegers(): SerializerPreprocessorFunction {
 }
 
 /**
- * Serializer preprocessor that delegates to the `[CDIFPreprocessorsSymbol.cdifPreprocess]` method of an object
+ * Serializer preprocessor that assigns a certain type to an object if the given condition is met.
+ * The actual object value is unchanged.
+ * (If the condition is not met, it continues to the next preprocessor as usual.)
+ * @param type the type identifier to assign
+ * @param condition a function that takes `{key, value}` and returns `true` iff `value` should be assigned type `type`
+ * @returns the preprocessor function
+ */
+export function assignType(
+	type: string,
+	condition: (data: {
+		key: null | string | number;
+		value: object;
+	}) => boolean
+): SerializerPreprocessorFunction {
+	if (!ss.is(type, ss.string())) {throw new TypeError(`type must be a string`);}
+	if (!ss.is(condition, ss_defineFunc("condition", 1))) {throw new TypeError(`condition must be a 1-argument function`);}
+	return ({key, value}) => {
+		if (isObject(value) && condition({key, value})) {
+			return {type, value};
+		}
+	};
+}
+
+/**
+ * Serializer preprocessor that delegates to the `[CDIF.Symbol.preprocess]` method of an object
  * if it exists. (If not, it continues to the next preprocessor as usual.)
  * @returns the preprocessor function
  */
 export function usePreprocessMethods(): SerializerPreprocessorFunction {
 	return ({key, value}) => {
 		if (isObject(value) && hasCdifPreprocess(value)) {
-			const cdifPreprocess: unknown = value[CDIFPreprocessorsSymbol.cdifPreprocess];
+			const cdifPreprocess: unknown = value[CDIF.Symbol.preprocess];
 			if ((typeof cdifPreprocess === "function") && (cdifPreprocess.length <= 1)) {
 				return (cdifPreprocess as SerializerPreprocessorFunction)({key, value});
-			} else {
-				throw new TypeError(
-					`[CDIFPreprocessorsSymbol.cdifPreprocess] of object with property name "${key}"`
-					+ `is not a valid preprocessor function`
-				);
 			}
+			throw new TypeError(
+				`[CDIF.Symbol.preprocess] of object with property name "${key}" is not a valid preprocessor function`
+			);
 		}
 	};
 }
 
-function hasCdifPreprocess(value: object): value is {[CDIFPreprocessorsSymbol.cdifPreprocess]: unknown} {
-	return CDIFPreprocessorsSymbol.cdifPreprocess in value;
+function hasCdifPreprocess(value: object): value is {[CDIF.Symbol.preprocess]: unknown} {
+	return CDIF.Symbol.preprocess in value;
 }

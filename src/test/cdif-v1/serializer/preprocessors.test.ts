@@ -1,9 +1,9 @@
+import {block} from "@mkacct/ts-util/strings";
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
-import {CDIFPreprocessorsSymbol, filterObjectProperties, useIntegers, usePreprocessMethods} from "../../../main/serializer/preprocessors.js";
-import {block} from "@mkacct/ts-util/strings";
 import {SerializerPreprocessorFunction} from "../../../main/serializer/encoder.js";
+import {assignType, filterObjectProperties, useIntegers, usePreprocessMethods} from "../../../main/serializer/preprocessors.js";
 
 suite("Included serializer preprocessors", (): void => {
 
@@ -75,6 +75,60 @@ suite("Included serializer preprocessors", (): void => {
 
 	{
 		const cdif = new CDIF({cdifVersion: VER, serializer: {
+			preprocessors: [
+				assignType("Foo", ({key}) => {
+					return key === "foo";
+				}),
+				assignType("Bar", ({value}) => {
+					return "bar" in value;
+				})
+			],
+			indent: "\t",
+			structureEntrySeparator: ";"
+		}});
+
+		test("assignType", (): void => {
+			assert.equal(cdif.serialize({ // primitives cannot have types
+				foo: 1
+			}), block(4, `
+				{
+					foo: 1.;
+				}
+			`));
+			assert.equal(cdif.serialize({
+				foo: [1, 2]
+			}), block(4, `
+				{
+					foo: Foo [
+						1.;
+						2.;
+					];
+				}
+			`));
+			assert.equal(cdif.serialize({
+				thing: {
+					bar: "asdf",
+					other: "jkl;"
+				},
+				other: {
+					foo: "nope"
+				}
+			}), block(4, `
+				{
+					thing: Bar {
+						bar: "asdf";
+						other: "jkl;";
+					};
+					other: {
+						foo: "nope";
+					};
+				}
+			`));
+		});
+	}
+
+	{
+		const cdif = new CDIF({cdifVersion: VER, serializer: {
 			preprocessors: [usePreprocessMethods()],
 			indent: "\t",
 			structureEntrySeparator: ";"
@@ -83,7 +137,7 @@ suite("Included serializer preprocessors", (): void => {
 		class NumberPlusTwoBox {
 			public constructor(private readonly value: number) {}
 
-			public [CDIFPreprocessorsSymbol.cdifPreprocess]: SerializerPreprocessorFunction = () => {
+			public [CDIF.Symbol.preprocess]: SerializerPreprocessorFunction = () => {
 				return {value: this.value + 2};
 			};
 		}
@@ -91,7 +145,7 @@ suite("Included serializer preprocessors", (): void => {
 		class Person {
 			public constructor(private readonly name: string) {}
 
-			public [CDIFPreprocessorsSymbol.cdifPreprocess]: SerializerPreprocessorFunction = () => {
+			public [CDIF.Symbol.preprocess]: SerializerPreprocessorFunction = () => {
 				return {type: "Person", value: {
 					name: this.name,
 					lettersInName: this.name.length,
