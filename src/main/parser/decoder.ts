@@ -1,5 +1,7 @@
 // Decoder: a component of the parser used to convert CDIFValue objects to JS values
 
+import * as ss from "superstruct";
+import {Describe} from "superstruct";
 import CDIF from "../cdif.js";
 import {ss_defineFunc} from "../extensions/ss-util.js";
 import {CDIFValue} from "../general.js";
@@ -79,7 +81,13 @@ function runPostprocessors(
 ): PostprocessorResult | typeof CDIF.OMIT_PROPERTY {
 	for (const postprocessor of postprocessors) {
 		const res = postprocessor(data);
-		if (res) {return res;}
+		if (res === undefined) {
+			continue;
+		} else if ((res === CDIF.OMIT_PROPERTY) || ss.is(res, struct_PostprocessorResult)) {
+			return res;
+		} else {
+			throw new TypeError(`Postprocessor function returned unexpected value`);
+		}
 	}
 	return {value: data.value};
 }
@@ -89,3 +97,5 @@ function runPostprocessors(
 export const struct_ParserPostprocessorFunction = ss_defineFunc<ParserPostprocessorFunction>(
 	"ParserPostprocessorFunction", 1
 );
+
+const struct_PostprocessorResult: Describe<PostprocessorResult> = ss.object({value: ss.unknown()});

@@ -4,6 +4,15 @@
 
 import * as ss from "superstruct";
 import {Describe, Infer, Struct} from "superstruct";
+import {isObject} from "../general.js";
+
+/**
+ * Ensure that a value is an `object` as defined by TS (not `null`; arrays allowed).
+ * @note this is not the same behavior as Superstruct's `object()`
+ */
+export function ss_tsObject(): Struct<object, null> {
+	return ss.define<object>("object", isObject);
+}
 
 /**
  * Wraps Superstruct's `define()`, defining a struct type for a function with a given argument count.

@@ -2,9 +2,10 @@
 
 import {between, isValue} from "@mkacct/ts-util";
 import sw from "@mkacct/ts-util/switch";
+import * as ss from "superstruct";
 import CDIF from "../cdif.js";
 import {CDIFError, CDIFTypeError} from "../errors.js";
-import {ss_defineFunc} from "../extensions/ss-util.js";
+import {ss_defineFunc, ss_tsObject} from "../extensions/ss-util.js";
 import {CDIFValue, isObject} from "../general.js";
 import {SerializerOptions} from "../options.js";
 import CDIFPrimitiveValue, {CDIFBoolean, CDIFFloat, CDIFInfinite, CDIFInteger, CDIFNull, CDIFString} from "../primitive-value.js";
@@ -116,7 +117,13 @@ function runPreprocessors(
 ): PreprocessorResult | typeof CDIF.OMIT_PROPERTY {
 	for (const preprocessor of preprocessors) {
 		const res = preprocessor(data);
-		if (res) {return res;}
+		if (res === undefined) {
+			continue;
+		} else if ((res === CDIF.OMIT_PROPERTY) || ss.is(res, struct_PreprocessorResult)) {
+			return res;
+		} else {
+			throw new TypeError(`Preprocessor function returned unexpected value`);
+		}
 	}
 	return {value: data.value};
 }
@@ -208,3 +215,8 @@ function encodeCdifString(str: string, cdifVersion: number): CDIFString {
 export const struct_SerializerPreprocessorFunction = ss_defineFunc<SerializerPreprocessorFunction>(
 	"SerializerPreprocessorFunction", 1
 );
+
+const struct_PreprocessorResult = ss.union([ // this is beyond the capabilities of Describe :(
+	ss.object({value: ss.unknown()}),
+	ss.object({type: ss.string(), value: ss_tsObject()})
+]);
