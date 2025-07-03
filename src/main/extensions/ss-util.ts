@@ -15,12 +15,12 @@ export function ss_tsObject(): Struct<object, null> {
 }
 
 /**
- * Wraps Superstruct's `define()`, defining a struct type for a function with a given argument count.
+ * Wraps Superstruct's `define()`, defining a struct type for a function with a given maximum argument count.
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function ss_defineFunc<T extends Function>(name: string, length: number): Struct<T, null> {
 	return ss.define<T>(name, (value: unknown): value is T => {
-		return (typeof value === "function") && (value.length === length);
+		return (typeof value === "function") && (value.length <= length);
 	});
 }
 
