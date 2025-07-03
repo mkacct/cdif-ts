@@ -42,6 +42,7 @@ export function formatCdifFile(cdifText: string, options: FileOptions, cdifVersi
 		(parsedOptions.headerData ? `# cDIF ${parsedOptions.headerData.cdifVersionString}\n` : "")
 		+ cdifText
 		+ (parsedOptions.addFinalSemicolon ? ";" : "")
+		+ "\n"
 	);
 }
 

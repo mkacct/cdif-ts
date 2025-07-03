@@ -24,11 +24,13 @@ suite("Serialize file", (): void => {
 		test(`Primitive value (${cdifNames.get(matrix.cdif)})`, (): void => {
 			assert.equal(cdif.serializeFile(42), block(4, `
 				42.
+
 			`));
 			assert.equal(cdif.serializeFile(42, {
 				addFinalSemicolon: true
 			}), block(4, `
 				42.;
+
 			`));
 			assert.equal(cdif.serializeFile(42, {
 				cdifVersionString: "1.0",
@@ -36,6 +38,7 @@ suite("Serialize file", (): void => {
 			}), block(4, `
 				# cDIF 1.0
 				42.;
+
 			`));
 		});
 	});
@@ -45,11 +48,13 @@ suite("Serialize file", (): void => {
 		test("Structure (default)", (): void => {
 			assert.equal(cdif.serializeFile([1, 2, 3]), block(4, `
 				[1., 2., 3.]
+
 			`));
 			assert.equal(cdif.serializeFile([1, 2, 3], {
 				addFinalSemicolon: true
 			}), block(4, `
 				[1., 2., 3.];
+
 			`));
 			assert.equal(cdif.serializeFile([1, 2, 3], {
 				cdifVersionString: "1.0",
@@ -57,6 +62,7 @@ suite("Serialize file", (): void => {
 			}), block(4, `
 				# cDIF 1.0
 				[1., 2., 3.];
+
 			`));
 		});
 	}
@@ -70,6 +76,7 @@ suite("Serialize file", (): void => {
 					2.;
 					3.;
 				]
+
 			`));
 			assert.equal(cdif.serializeFile([1, 2, 3], {
 				addFinalSemicolon: true
@@ -79,6 +86,7 @@ suite("Serialize file", (): void => {
 					2.;
 					3.;
 				];
+
 			`));
 			assert.equal(cdif.serializeFile([1, 2, 3], {
 				cdifVersionString: "1.0",
@@ -90,6 +98,7 @@ suite("Serialize file", (): void => {
 					2.;
 					3.;
 				];
+
 			`));
 		});
 	}
@@ -102,12 +111,14 @@ suite("Serialize file", (): void => {
 			}), block(4, `
 				# cDIF 1.0
 				null
+
 			`));
 			assert.equal(cdif.serializeFile(null, {
 				cdifVersionString: "1.1"
 			}), block(4, `
 				# cDIF 1.1
 				null
+
 			`));
 
 			assert.throws((): void => {
@@ -127,6 +138,7 @@ suite("Serialize file", (): void => {
 			}), block(4, `
 				# cDIF 2.0
 				null
+
 			`));
 			assert.equal(cdif.serializeFile(null, {
 				cdifVersionString: "foo",
@@ -134,6 +146,7 @@ suite("Serialize file", (): void => {
 			}), block(4, `
 				# cDIF foo
 				null
+
 			`));
 		});
 	}
