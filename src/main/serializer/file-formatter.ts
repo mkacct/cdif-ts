@@ -4,6 +4,7 @@
 import {isValue} from "@mkacct/ts-util";
 import * as ss from "superstruct";
 import {Describe} from "superstruct";
+import {validateCdifVersionString} from "../general.js";
 
 export interface FileOptions {
 	/**
@@ -62,17 +63,6 @@ function parseFileOptions(options: FileOptions, cdifVersion: number) {
 		headerData: headerData,
 		addFinalSemicolon: options.addFinalSemicolon ?? false
 	};
-}
-
-function validateCdifVersionString(cdifVersionString: string, cdifVersion: number): void {
-	const match = cdifVersionString.match(/^(?<major>0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))*$/s);
-	if (!match) {
-		throw new RangeError(`Invalid cDIF version string "${cdifVersionString}"`);
-	}
-	const major: number = parseInt(match.groups!.major);
-	if (major !== cdifVersion) {
-		throw new Error(`cDIF file formatter version mismatch (expected ${cdifVersion}, got ${major})`);
-	}
 }
 
 // type validation:
