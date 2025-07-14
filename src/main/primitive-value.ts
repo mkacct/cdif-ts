@@ -84,17 +84,19 @@ function checkSign(cdifText: string): {isNegative: boolean, withoutSign: string}
 }
 
 export class CDIFInteger extends CDIFPrimitiveValue {
+	readonly #value: bigint;
 
-	public constructor(private readonly value: bigint, cdifVersion: number) {
+	public constructor(value: bigint, cdifVersion: number) {
 		super(cdifVersion);
+		this.#value = value;
 	}
 
 	public override get cdifText(): string {
-		return this.value.toString();
+		return this.#value.toString();
 	}
 
 	public override get parsed(): bigint {
-		return this.value;
+		return this.#value;
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFInteger {
@@ -112,29 +114,32 @@ export class CDIFInteger extends CDIFPrimitiveValue {
 }
 
 export class CDIFFloat extends CDIFPrimitiveValue {
+	readonly #isNegative: boolean;
+	readonly #significand: string;
+	readonly #exponent: bigint;
 
-	public constructor(
-		private readonly isNegative: boolean, private readonly significand: string, private readonly exponent: bigint,
-		cdifVersion: number
-	) {
+	public constructor(isNegative: boolean, significand: string, exponent: bigint, cdifVersion: number) {
 		super(cdifVersion);
 		if (!/^(?:0|[1-9]\d*)\.(?:|\d*[1-9])$/us.test(significand)) {
 			throw new Error(`Invalid significand: ${significand}`);
 		}
+		this.#isNegative = isNegative;
+		this.#significand = significand;
+		this.#exponent = exponent;
 	}
 
 	public override get cdifText(): string {
 		return `${
-			this.isNegative ? "-" : ""
+			this.#isNegative ? "-" : ""
 		}${
-			this.significand
+			this.#significand
 		}${
-			(this.exponent !== 0n) ? `e${this.exponent.toString()}` : ""
+			(this.#exponent !== 0n) ? `e${this.#exponent.toString()}` : ""
 		}`;
 	}
 
 	public override get parsed(): number {
-		return parseFloat(`${this.isNegative ? "-" : ""}${this.significand}e${this.exponent.toString()}`);
+		return parseFloat(`${this.#isNegative ? "-" : ""}${this.#significand}e${this.#exponent.toString()}`);
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFFloat {
@@ -143,15 +148,15 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		if (between(parts.length, 1, 2)) {
 			return new CDIFFloat(
 				isNegative,
-				CDIFFloat.parseSignificand(parts[0]),
-				(isValue(parts[1]) ? CDIFFloat.parseExponent(parts[1]) : 0n),
+				CDIFFloat.#parseSignificand(parts[0]),
+				(isValue(parts[1]) ? CDIFFloat.#parseExponent(parts[1]) : 0n),
 				cdifVersion
 			);
 		}
 		throw new PrimitiveValueError();
 	}
 
-	private static parseSignificand(text: string): string {
+	static #parseSignificand(text: string): string {
 		if ((text !== ".") && /^(?:\d(?:_?\d)*)?\.(?:\d(?:_?\d)*)?$/us.test(text)) {
 			text = text.replace(/_/g, "");
 			text = text.replace(/^0+|0+$/g, "");
@@ -161,7 +166,7 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		throw new PrimitiveValueError();
 	}
 
-	private static parseExponent(text: string): bigint {
+	static #parseExponent(text: string): bigint {
 		const {isNegative, withoutSign} = checkSign(text);
 		if (/^\d(?:_?\d)*$/us.test(withoutSign)) {
 			const withoutSeparators: string = withoutSign.replace(/_/g, "");
@@ -174,17 +179,19 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 }
 
 export class CDIFInfinite extends CDIFPrimitiveValue {
+	readonly #isNegative: boolean;
 
-	public constructor(private readonly isNegative: boolean, cdifVersion: number) {
+	public constructor(isNegative: boolean, cdifVersion: number) {
 		super(cdifVersion);
+		this.#isNegative = isNegative;
 	}
 
 	public override get cdifText(): string {
-		return `${this.isNegative ? "-" : ""}infinity`;
+		return `${this.#isNegative ? "-" : ""}infinity`;
 	}
 
 	public override get parsed(): number {
-		return (this.isNegative ? -1 : 1) * Infinity;
+		return (this.#isNegative ? -1 : 1) * Infinity;
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFInfinite {
@@ -283,18 +290,19 @@ function getEscapeSeqExpectedLength(idChar: string): number {
 }
 
 export class CDIFCharacter extends CDIFPrimitiveValue {
+	readonly #entity: string;
 
-	public constructor(private readonly entity: string, cdifVersion: number) {
+	public constructor(entity: string, cdifVersion: number) {
 		super(cdifVersion);
-		this.entity = canonicalizeCharEntity(entity, "'");
+		this.#entity = canonicalizeCharEntity(entity, "'");
 	}
 
 	public override get cdifText(): string {
-		return `'${this.entity}'`;
+		return `'${this.#entity}'`;
 	}
 
 	public override get parsed(): string {
-		return parseCharEntity(this.entity);
+		return parseCharEntity(this.#entity);
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFCharacter {
@@ -321,29 +329,30 @@ function splitIntoUnicodeChars(str: string): string[] {
 }
 
 export class CDIFString extends CDIFPrimitiveValue {
+	readonly #entities: ReadonlyArray<string>;
 
-	public constructor(private readonly entities: ReadonlyArray<string>, cdifVersion: number) {
+	public constructor(entities: ReadonlyArray<string>, cdifVersion: number) {
 		super(cdifVersion);
-		this.entities = entities.map((ent: string): string => canonicalizeCharEntity(ent, "\""));
+		this.#entities = entities.map((ent: string): string => canonicalizeCharEntity(ent, "\""));
 	}
 
 	public override get cdifText(): string {
-		return `"${this.entities.join("")}"`;
+		return `"${this.#entities.join("")}"`;
 	}
 
 	public override get parsed(): string {
-		return this.entities.map((ent: string): string => parseCharEntity(ent)).join("");
+		return this.#entities.map((ent: string): string => parseCharEntity(ent)).join("");
 	}
 
-	private static readonly NotBlockStringError = class extends PrimitiveValueError {};
+	static readonly #NotBlockStringError = class extends PrimitiveValueError {};
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFString {
 		let entities: string[];
 		try {
-			entities = CDIFString.parseBlockString(cdifText);
+			entities = CDIFString.#parseBlockString(cdifText);
 		} catch (err) {
-			if (err instanceof CDIFString.NotBlockStringError) {
-				entities = CDIFString.parseOneLineString(cdifText);
+			if (err instanceof CDIFString.#NotBlockStringError) {
+				entities = CDIFString.#parseOneLineString(cdifText);
 			} else {throw err;}
 		}
 		try {
@@ -352,36 +361,36 @@ export class CDIFString extends CDIFPrimitiveValue {
 		throw new PrimitiveValueError();
 	}
 
-	private static parseOneLineString(cdifText: string): string[] {
+	static #parseOneLineString(cdifText: string): string[] {
 		const match = cdifText.match(/^(?<quote>["`])(?<text>.*)\1$/us);
 		if (!match) {throw new PrimitiveValueError();}
 		const {quote, text} = match.groups!;
 		const isVerbatim: boolean = quote === "`";
-		const entities: string[] = CDIFString.splitIntoEntities(text, isVerbatim, quote);
+		const entities: string[] = CDIFString.#splitIntoEntities(text, isVerbatim, quote);
 		return entities;
 	}
 
-	private static parseBlockString(cdifText: string): string[] {
+	static #parseBlockString(cdifText: string): string[] {
 		const match = cdifText.match(/^(?<delimiter>(?<quote>["`])\2{2,})(?<text>.*)\1$/us);
-		if (!match) {throw new CDIFString.NotBlockStringError();}
+		if (!match) {throw new CDIFString.#NotBlockStringError();}
 		const {quote, delimiter, text} = match.groups!;
-		const strippedText = CDIFString.handleBlockStringWhitespace(text);
+		const strippedText = CDIFString.#handleBlockStringWhitespace(text);
 		const isVerbatim: boolean = quote === "`";
-		let entities: string[] = CDIFString.splitIntoEntities(strippedText, isVerbatim, delimiter);
-		entities = CDIFString.processMultilineSpecificEntities(entities, isVerbatim);
+		let entities: string[] = CDIFString.#splitIntoEntities(strippedText, isVerbatim, delimiter);
+		entities = CDIFString.#processMultilineSpecificEntities(entities, isVerbatim);
 		return entities;
 	}
 
-	private static splitIntoEntities(text: string, isVerbatim: boolean, delimiter: string): string[] {
+	static #splitIntoEntities(text: string, isVerbatim: boolean, delimiter: string): string[] {
 		const delimiterEntities: string[] = splitIntoUnicodeChars(delimiter);
 		const entities: string[] = isVerbatim
-			? CDIFString.splitVerbatimIntoEntities(text)
-			: CDIFString.splitEscapedIntoEntities(text);
+			? CDIFString.#splitVerbatimIntoEntities(text)
+			: CDIFString.#splitEscapedIntoEntities(text);
 		if (Arrays.includesSubarray(entities, delimiterEntities)) {throw new PrimitiveValueError();}
 		return entities;
 	}
 
-	private static splitEscapedIntoEntities(text: string): string[] {
+	static #splitEscapedIntoEntities(text: string): string[] {
 		const srcChars: string[] = splitIntoUnicodeChars(text);
 		const entities: string[] = [];
 		let escapeBuffer: string[] = [];
@@ -406,13 +415,13 @@ export class CDIFString extends CDIFPrimitiveValue {
 		return entities;
 	}
 
-	private static splitVerbatimIntoEntities(text: string): string[] {
+	static #splitVerbatimIntoEntities(text: string): string[] {
 		return splitIntoUnicodeChars(text).map((char: string): string => (
 			(char === "\\") ? "\\\\" : char
 		));
 	}
 
-	private static handleBlockStringWhitespace(text: string): string {
+	static #handleBlockStringWhitespace(text: string): string {
 		const lines: string[] = text.split("\n");
 		if (lines.length === 1) {return lines[0];}
 		let preservedFirstLine: string | null = null;
@@ -423,14 +432,14 @@ export class CDIFString extends CDIFPrimitiveValue {
 		if (/^\s*$/us.test(lines[lines.length - 1])) {
 			lines.pop();
 		}
-		CDIFString.stripCommonIndentFromNonEmptyLines(lines);
+		CDIFString.#stripCommonIndentFromNonEmptyLines(lines);
 		if (isValue(preservedFirstLine)) {
 			lines.unshift(preservedFirstLine);
 		}
 		return lines.join("\n");
 	}
 
-	private static stripCommonIndentFromNonEmptyLines(lines: string[]): void { // mutates lines in-place
+	static #stripCommonIndentFromNonEmptyLines(lines: string[]): void { // mutates lines in-place
 		let commonIndent: string | null = null;
 		for (const line of lines) { // determine common indent
 			if (line.length === 0) {continue;} // skip empty lines
@@ -458,7 +467,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 		}
 	}
 
-	private static processMultilineSpecificEntities(entities: ReadonlyArray<string>, isVerbatim: boolean): string[] {
+	static #processMultilineSpecificEntities(entities: ReadonlyArray<string>, isVerbatim: boolean): string[] {
 		let res: string[] = entities.map((ent: string): string => (ent === "\n") ? "\\n" : ent); // escape newlines
 		if (!isVerbatim) {
 			res = res.filter((ent: string): boolean => ent !== "\\\n"); // line continuations resolve to nothing
@@ -469,17 +478,19 @@ export class CDIFString extends CDIFPrimitiveValue {
 }
 
 export class CDIFBoolean extends CDIFPrimitiveValue {
+	readonly #value: boolean;
 
-	public constructor(private readonly value: boolean, cdifVersion: number) {
+	public constructor(value: boolean, cdifVersion: number) {
 		super(cdifVersion);
+		this.#value = value;
 	}
 
 	public override get cdifText(): string {
-		return this.value ? "true" : "false";
+		return this.#value ? "true" : "false";
 	}
 
 	public override get parsed(): boolean {
-		return this.value;
+		return this.#value;
 	}
 
 	public static fromCdifText(cdifText: string, cdifVersion: number): CDIFBoolean {

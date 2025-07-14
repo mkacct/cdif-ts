@@ -24,9 +24,9 @@ export default class CDIF { // The package's default export (exported as default
 	/** When returned from a pre/postprocessor function, denotes that the property should be omitted */
 	public static readonly OMIT_PROPERTY: unique symbol = Symbol("omitProperty");
 
-	private readonly cdifVersion: number;
-	private readonly parserOptions: Required<ParserOptions>;
-	private readonly serializerOptions: Required<SerializerOptions>;
+	readonly #cdifVersion: number;
+	readonly #parserOptions: Required<ParserOptions>;
+	readonly #serializerOptions: Required<SerializerOptions>;
 
 	/**
 	 * Create an instance of the cDIF parser/serializer.
@@ -36,9 +36,9 @@ export default class CDIF { // The package's default export (exported as default
 	public constructor(options?: CDIFOptions) {
 		if (!ss.is(options, struct_CDIFOptions)) {throw new TypeError(`options must be a valid CDIFOptions object`);}
 		const parsedOptions = parseOptions(options);
-		this.cdifVersion = parsedOptions.cdifVersion;
-		this.parserOptions = parsedOptions.parser;
-		this.serializerOptions = parsedOptions.serializer;
+		this.#cdifVersion = parsedOptions.cdifVersion;
+		this.#parserOptions = parsedOptions.parser;
+		this.#serializerOptions = parsedOptions.serializer;
 	}
 
 	/**
@@ -49,10 +49,10 @@ export default class CDIF { // The package's default export (exported as default
 	 */
 	public parse(cdifText: string): unknown {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
-		return this.parseImpl(cdifText);
+		return this.#parseImpl(cdifText);
 	}
 
-	private parseImpl(cdifText: string): unknown {
+	#parseImpl(cdifText: string): unknown {
 		throw new Error(`NYI`); // TODO
 		// const parsedCdifValue: CDIFValue = parseCdifText(cdifText, this.parserOptions, this.cdifVersion);
 		// const res: {value: unknown} | undefined = decodeCdifValue(
@@ -74,7 +74,7 @@ export default class CDIF { // The package's default export (exported as default
 	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
 	public serialize(value: unknown): string {
-		return this.serializeImpl(value);
+		return this.#serializeImpl(value);
 	}
 
 	/**
@@ -93,16 +93,16 @@ export default class CDIF { // The package's default export (exported as default
 	public serializeFile(value: unknown, options?: FileOptions): string {
 		if (options === undefined) {options = {};}
 		if (!ss.is(options, struct_FileOptions)) {throw new TypeError(`options must be a valid FileOptions object`);}
-		return this.serializeImpl(value, options);
+		return this.#serializeImpl(value, options);
 	}
 
-	private serializeImpl(value: unknown, fileOptions?: FileOptions) {
+	#serializeImpl(value: unknown, fileOptions?: FileOptions) {
 		const encodedValue: CDIFValue | undefined = encodeCdifValue(
-			null, value, this.serializerOptions, this.cdifVersion
+			null, value, this.#serializerOptions, this.#cdifVersion
 		);
 		if (!encodedValue) {throw new CDIFError(`Root value was omitted`);}
-		const cdifText: string = stringifyCdifValue(encodedValue, this.serializerOptions);
-		return fileOptions ? formatCdifFile(cdifText, fileOptions, this.cdifVersion) : cdifText;
+		const cdifText: string = stringifyCdifValue(encodedValue, this.#serializerOptions);
+		return fileOptions ? formatCdifFile(cdifText, fileOptions, this.#cdifVersion) : cdifText;
 	}
 
 	/**
@@ -112,7 +112,7 @@ export default class CDIF { // The package's default export (exported as default
 	 */
 	public createPrimitiveValue(cdifText: string): CDIFPrimitiveValue {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
-		return createPrimVal(cdifText, this.cdifVersion);
+		return createPrimVal(cdifText, this.#cdifVersion);
 	}
 
 }

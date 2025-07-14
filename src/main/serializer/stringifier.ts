@@ -32,21 +32,21 @@ export function writeCdifValueText(
  */
 export class PrettyTextWriter {
 
-	private readonly strs: string[] = [];
+	readonly #strs: string[] = [];
 
-	private readonly isMultiline: boolean;
-	private readonly indent?: string;
+	readonly #isMultiline: boolean;
+	readonly #indent?: string;
 
-	private indentLevel: number = 0;
-	private nextSeparator: string = "";
+	#indentLevel: number = 0;
+	#nextSeparator: string = "";
 
 	public constructor(indent?: string) {
-		this.isMultiline = isValue(indent);
-		this.indent = indent;
+		this.#isMultiline = isValue(indent);
+		this.#indent = indent;
 	}
 
 	/** The string built by this writer */
-	public get text(): string {return this.strs.join("");}
+	public get text(): string {return this.#strs.join("");}
 
 	/**
 	 * Append text to the resultant string.
@@ -55,19 +55,19 @@ export class PrettyTextWriter {
 	 * @param isEOL whether to follow `text` with a newline if this is a multiline string
 	 */
 	public write(text: string = "", oneLineSeparator: string = "", isEOL: boolean = false): void {
-		if ((this.strs.length > 0) && this.nextSeparator) {
-			this.strs.push(this.nextSeparator);
+		if ((this.#strs.length > 0) && this.#nextSeparator) {
+			this.#strs.push(this.#nextSeparator);
 		}
-		if (this.isMultiline) {
-			if (this.nextSeparator === "\n") {
-				this.strs.push(this.indent!.repeat(this.indentLevel));
+		if (this.#isMultiline) {
+			if (this.#nextSeparator === "\n") {
+				this.#strs.push(this.#indent!.repeat(this.#indentLevel));
 			}
-			this.nextSeparator = isEOL ? "\n" : "";
+			this.#nextSeparator = isEOL ? "\n" : "";
 		} else {
-			this.nextSeparator = oneLineSeparator;
+			this.#nextSeparator = oneLineSeparator;
 		}
 		if (text) {
-			this.strs.push(text);
+			this.#strs.push(text);
 		}
 	}
 
@@ -75,14 +75,14 @@ export class PrettyTextWriter {
 	 * Adjust the text indentation level by the given quantity.
 	 */
 	public changeIndent(by: number): void {
-		this.indentLevel = Math.max(0, this.indentLevel + by);
+		this.#indentLevel = Math.max(0, this.#indentLevel + by);
 	}
 
 	/**
 	 * Prevent the next write from adding a separator.
 	 */
 	public clearNextSeparator(): void {
-		this.nextSeparator = "";
+		this.#nextSeparator = "";
 	}
 
 }

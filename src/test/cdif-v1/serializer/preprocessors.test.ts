@@ -135,21 +135,29 @@ suite("Included serializer preprocessors", (): void => {
 		}});
 
 		class NumberPlusTwoBox {
-			public constructor(private readonly value: number) {}
+			readonly #value: number;
+
+			public constructor(value: number) {
+				this.#value = value;
+			}
 
 			public [CDIF.Symbol.preprocess]: SerializerPreprocessorFunction = () => {
-				return {value: this.value + 2};
+				return {value: this.#value + 2};
 			};
 		}
 
 		class Person {
-			public constructor(private readonly name: string) {}
+			readonly #name: string;
+
+			public constructor(name: string) {
+				this.#name = name;
+			}
 
 			public [CDIF.Symbol.preprocess]: SerializerPreprocessorFunction = () => {
 				return {type: "Person", value: {
-					name: this.name,
-					lettersInName: this.name.length,
-					favoriteColor: (this.name === "Maddie") ? "pink" : "idk"
+					name: this.#name,
+					lettersInName: this.#name.length,
+					favoriteColor: (this.#name === "Maddie") ? "pink" : "idk"
 				}};
 			}
 		}
