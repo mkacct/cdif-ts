@@ -1,3 +1,6 @@
+// Suite "Included serializer preprocessors": tests the included preprocessors (preprocessors.ts),
+// assuming the actual serializer works correctly
+
 import {block} from "@mkacct/ts-util/strings";
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";

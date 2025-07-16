@@ -1,3 +1,6 @@
+// Suite "Parser decoder": tests the decoder directly using the decodeCdifValue() function,
+// independently of any other parser components
+
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";

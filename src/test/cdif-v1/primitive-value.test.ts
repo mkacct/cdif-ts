@@ -1,3 +1,6 @@
+// Suite "Create primitive value": tests each of the primitive value classes (primitive-value.ts)
+// and their decoding logic through CDIF.createPrimitiveValue()
+
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../main/cdif.js";

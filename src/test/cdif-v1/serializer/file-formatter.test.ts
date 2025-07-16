@@ -1,3 +1,6 @@
+// Suite "Serialize file": tests the file formatter using CDIF.serializeFile(),
+// assuming the serializer proper works fine
+
 import {block} from "@mkacct/ts-util/strings";
 import {matrixStrategy} from "@mkacct/ts-util/tests";
 import assert from "node:assert/strict";
