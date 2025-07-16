@@ -4,6 +4,8 @@ import * as ss from "superstruct";
 import {CDIFError} from "./errors.js";
 import {CDIFValue} from "./general.js";
 import {CDIFOptions, parseOptions, ParserOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
+import {decodeCdifValue} from "./parser/decoder.js";
+import {tokenizeCdifFile} from "./parser/tokenizer.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import {encodeCdifValue} from "./serializer/encoder.js";
 import {FileOptions, formatCdifFile, struct_FileOptions} from "./serializer/file-formatter.js";
@@ -54,9 +56,10 @@ export default class CDIF { // The package's default export (exported as default
 
 	#parseImpl(cdifText: string): unknown {
 		throw new Error(`NYI`); // TODO
-		// const parsedCdifValue: CDIFValue = parseCdifText(cdifText, this.parserOptions, this.cdifVersion);
+		// const tokens = tokenizeCdifFile(cdifText);
+		// const parsedCdifValue: CDIFValue = parseCdifTokens(tokens, this.#parserOptions, this.#cdifVersion);
 		// const res: {value: unknown} | undefined = decodeCdifValue(
-		// 	null, parsedCdifValue, this.parserOptions, this.cdifVersion
+		// 	null, parsedCdifValue, this.#parserOptions, this.#cdifVersion
 		// );
 		// if (!res) {throw new CDIFError(`Root value was omitted`);}
 		// return res.value;
