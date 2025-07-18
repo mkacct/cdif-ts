@@ -5,7 +5,7 @@ import {CDIFSyntaxError} from "../errors.js";
 
 export type Token = TokenLike<TokenID>;
 
-interface TokenLike<T> {
+export interface TokenLike<T> {
 	readonly id: T;
 	readonly cdifText: string;
 }
