@@ -31,6 +31,12 @@ export interface ParserOptions {
 	 * (see docs for details)
 	 */
 	readonly postprocessors?: ReadonlyArray<ParserPostprocessorFunction>;
+	/**
+	 * If `true`, the version string in a "cDIF" directive will not be validated;
+	 * if `false`, an error will be thrown if the "cDIF" directive is invalid or does not match the cDIF version
+	 * (defaults to `false`)
+	 */
+	readonly allowUnexpectedVersionString?: boolean;
 }
 
 export interface SerializerOptions {
@@ -95,7 +101,8 @@ export function parseParserOptions(parserOptions?: ParserOptions): Required<Pars
 	parserOptions = parserOptions ?? {};
 	return {
 		useBigInt: parserOptions.useBigInt ?? false,
-		postprocessors: parserOptions.postprocessors ?? []
+		postprocessors: parserOptions.postprocessors ?? [],
+		allowUnexpectedVersionString: parserOptions.allowUnexpectedVersionString ?? false
 	};
 }
 
@@ -123,7 +130,8 @@ const struct_SerializerOptions: Describe<SerializerOptions> = ss.object({
 
 const struct_ParserOptions: Describe<ParserOptions> = ss.object({
 	useBigInt: ss.optional(ss.boolean()),
-	postprocessors: ss.optional(ss_readonlyArray(struct_ParserPostprocessorFunction))
+	postprocessors: ss.optional(ss_readonlyArray(struct_ParserPostprocessorFunction)),
+	allowUnexpectedVersionString: ss.optional(ss.boolean())
 });
 
 export const struct_CDIFOptions: Describe<CDIFOptions> = ss.object({
