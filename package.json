@@ -16,6 +16,10 @@
 			"default": "./build/main/main.js",
 			"types": "./build/main/main.d.ts"
 		},
+		"./postprocessors": {
+			"default": "./build/main/parser/postprocessors.js",
+			"types": "./build/main/parser/postprocessors.d.ts"
+		},
 		"./preprocessors": {
 			"default": "./build/main/serializer/preprocessors.js",
 			"types": "./build/main/serializer/preprocessors.d.ts"
