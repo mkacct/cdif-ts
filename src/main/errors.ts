@@ -4,4 +4,6 @@
 
 export class CDIFError extends Error {}
 export class CDIFSyntaxError extends CDIFError {}
+export class CDIFReferenceError extends CDIFError {}
 export class CDIFTypeError extends CDIFError {}
+export class CDIFDirectiveError extends CDIFError {}

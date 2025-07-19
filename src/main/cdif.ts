@@ -5,6 +5,7 @@ import {CDIFError} from "./errors.js";
 import {CDIFValue} from "./general.js";
 import {CDIFOptions, parseOptions, ParserOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
 import {decodeCdifValue} from "./parser/decoder.js";
+import {parseCdifTokens} from "./parser/proper/parser.js";
 import {tokenizeCdifFile} from "./parser/tokenizer.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import {encodeCdifValue} from "./serializer/encoder.js";
@@ -48,6 +49,11 @@ export default class CDIF { // The package's default export (exported as default
 	 * @param cdifText a valid cDIF string (read from a file or otherwise)
 	 * @returns `cdifText` converted to a JS value (usually an object or array)
 	 * @throws {CDIFError} if a postprocessor function tries to omit the root value
+	 * @throws {CDIFSyntaxError} if the input has invalid syntax
+	 * @throws {CDIFDirectiveError} if an unknown directive is encountered, or a directive is used incorrectly
+	 * @throws {CDIFDirectiveError} if `allowUnexpectedVersionString` is false and the "cDIF" directive is used with an unexpected version string
+	 * @throws {CDIFReferenceError} if a component reference is not defined
+	 * @throws {CDIFTypeError} if a spread expression is used with a component of the wrong type
 	 */
 	public parse(cdifText: string): unknown {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
@@ -55,14 +61,13 @@ export default class CDIF { // The package's default export (exported as default
 	}
 
 	#parseImpl(cdifText: string): unknown {
-		throw new Error(`NYI`); // TODO
-		// const tokens = tokenizeCdifFile(cdifText);
-		// const parsedCdifValue: CDIFValue = parseCdifTokens(tokens, this.#parserOptions, this.#cdifVersion);
-		// const res: {value: unknown} | undefined = decodeCdifValue(
-		// 	null, parsedCdifValue, this.#parserOptions, this.#cdifVersion
-		// );
-		// if (!res) {throw new CDIFError(`Root value was omitted`);}
-		// return res.value;
+		const tokens = tokenizeCdifFile(cdifText);
+		const parsedCdifValue: CDIFValue = parseCdifTokens(tokens, this.#parserOptions, this.#cdifVersion);
+		const res: {value: unknown} | undefined = decodeCdifValue(
+			null, parsedCdifValue, this.#parserOptions, this.#cdifVersion
+		);
+		if (!res) {throw new CDIFError(`Root value was omitted`);}
+		return res.value;
 	}
 
 	/**
