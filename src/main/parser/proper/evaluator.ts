@@ -34,7 +34,7 @@ export default function evaluateAstValue(
 					for (const [key, value] of spreadObject.data) {
 						data.set(key, value);
 					}
-				} else {
+				} else { // entry is ASTValue
 					data.set(entry.key, evaluateAstValue(entry.value, components, cdifVersion, componentRefs));
 				}
 			}
@@ -50,7 +50,7 @@ export default function evaluateAstValue(
 					for (const value of spreadCollection.data) {
 						data.push(value);
 					}
-				} else {
+				} else { // entry is ASTValue
 					data.push(evaluateAstValue(entry, components, cdifVersion, componentRefs));
 				}
 			}
