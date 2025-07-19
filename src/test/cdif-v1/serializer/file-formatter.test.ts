@@ -124,16 +124,12 @@ suite("Serialize file", (): void => {
 
 			`));
 
-			assert.throws((): void => {
-				cdif.serializeFile(null, {
-					cdifVersionString: "2.0"
-				});
-			}, Error);
-			assert.throws((): void => {
-				cdif.serializeFile(null, {
-					cdifVersionString: "foo"
-				});
-			}, Error);
+			assert.throws(() => cdif.serializeFile(null, {
+				cdifVersionString: "2.0"
+			}), Error);
+			assert.throws(() => cdif.serializeFile(null, {
+				cdifVersionString: "foo"
+			}), Error);
 
 			assert.equal(cdif.serializeFile(null, {
 				cdifVersionString: "2.0",

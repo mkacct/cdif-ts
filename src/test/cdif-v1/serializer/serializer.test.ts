@@ -170,21 +170,11 @@ suite("Serialize", (): void => {
 		}});
 
 		test(`Error cases`, (): void => {
-			assert.throws((): void => { // CDIFPrimitiveValue with wrong version
-				cdif.serialize(new CDIFInteger(42n, 2));
-			}, CDIFError);
-			assert.throws((): void => { // omit collection value
-				cdif.serialize(["PLEASE OMIT ME THANK YOU"]);
-			}, CDIFError);
-			assert.throws((): void => { // bad object key name
-				cdif.serialize({"uh oh spaces in key": "nope"});
-			}, CDIFSyntaxError);
-			assert.throws((): void => { // bad type name
-				cdif.serialize({"badTypeName": {}});
-			}, CDIFSyntaxError);
-			assert.throws((): void => { // disallowed type
-				cdif.serialize(Symbol("uh oh symbol"));
-			}, CDIFTypeError);
+			assert.throws(() => cdif.serialize(new CDIFInteger(42n, 2)), CDIFError); // CDIFPrimitiveValue wrong version
+			assert.throws(() => cdif.serialize(["PLEASE OMIT ME THANK YOU"]), CDIFError); // omit collection value
+			assert.throws(() => cdif.serialize({"uh oh spaces in key": "nope"}), CDIFSyntaxError); // bad obj key name
+			assert.throws(() => cdif.serialize({"badTypeName": {}}), CDIFSyntaxError); // bad type name
+			assert.throws(() => cdif.serialize(Symbol("uh oh symbol")), CDIFTypeError); // disallowed type
 		});
 	}
 
@@ -196,9 +186,7 @@ suite("Serialize", (): void => {
 
 			let circular: {a: unknown} = {a: null};
 			circular.a = circular;
-			assert.throws((): void => {
-				cdif.serialize(circular);
-			}, CDIFTypeError);
+			assert.throws(() => cdif.serialize(circular), CDIFTypeError);
 		});
 	}
 
