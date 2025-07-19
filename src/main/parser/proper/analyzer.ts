@@ -82,7 +82,7 @@ function tokenToErrStr(token: TokenLike<TokenID | null>): string {
  * @returns syntax tree for the section
  * @throws {CDIFSyntaxError} if the section has bad syntax
  */
-export function createSectionSyntaxTree(tokens: ReadonlyArray<Token>): ASTValue {
+export default function createSectionSyntaxTree(tokens: ReadonlyArray<Token>): ASTValue {
 	const reader: TokenReader = new TokenReader(tokens);
 	const value: ASTValue = parseValue(reader);
 	if (reader.get().id === TokenID.VALUE_TERMINATOR) {reader.next();}

@@ -41,7 +41,7 @@ type PreprocessorResult = (
  * @throws {CDIFTypeError} if a circular reference is encountered
  * @throws {CDIFTypeError} in strict mode, if `value` is of a disallowed type
  */
-export function encodeCdifValue(
+export default function encodeCdifValue(
 	key: null | string | number,
 	value: unknown,
 	options: Required<SerializerOptions>,

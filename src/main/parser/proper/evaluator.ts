@@ -16,7 +16,7 @@ import {ASTNodeID, ASTSpreadReference, ASTValue} from "./analyzer.js";
  * @throws {CDIFReferenceError} if a component reference node does not reference a defined component
  * @throws {CDIFTypeError} if a component is used in a spread expression where its type is not allowed
  */
-export function evaluateAstValue(
+export default function evaluateAstValue(
 	node: ASTValue,
 	components: ReadonlyMap<string, ASTValue>,
 	cdifVersion: number,

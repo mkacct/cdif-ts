@@ -4,13 +4,13 @@ import * as ss from "superstruct";
 import {CDIFError} from "./errors.js";
 import {CDIFValue} from "./general.js";
 import {CDIFOptions, parseOptions, ParserOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
-import {decodeCdifValue} from "./parser/decoder.js";
-import {parseCdifTokens} from "./parser/proper/parser.js";
-import {tokenizeCdifFile} from "./parser/tokenizer.js";
+import decodeCdifValue from "./parser/decoder.js";
+import parseCdifTokens from "./parser/proper/parser.js";
+import tokenizeCdifFile from "./parser/tokenizer.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
-import {encodeCdifValue} from "./serializer/encoder.js";
-import {FileOptions, formatCdifFile, struct_FileOptions} from "./serializer/file-formatter.js";
-import {stringifyCdifValue} from "./serializer/stringifier.js";
+import encodeCdifValue from "./serializer/encoder.js";
+import formatCdifFile, {FileOptions, struct_FileOptions} from "./serializer/file-formatter.js";
+import stringifyCdifValue from "./serializer/stringifier.js";
 import * as symbol from "./symbol.js";
 
 /** Latest cDIF major version known to this implementation */

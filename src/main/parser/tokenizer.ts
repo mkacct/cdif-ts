@@ -30,7 +30,7 @@ export enum TokenID {
  * @returns array of tokens
  * @throws {CDIFSyntaxError} if it encounters something other than a recognized token
  */
-export function tokenizeCdifFile(cdifText: string): Token[] {
+export default function tokenizeCdifFile(cdifText: string): Token[] {
 	cdifText = preprocessWhitespace(cdifText);
 	const tokens: Token[] = [];
 	let index: number = 0;

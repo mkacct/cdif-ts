@@ -5,7 +5,7 @@ import {CDIFSyntaxError} from "./errors.js";
 import {CDIFValue} from "./general.js";
 import {isValidName, isValidTypeId} from "./identifiers.js";
 import {ParserOptions, SerializerOptions} from "./options.js";
-import {decodeCdifValue} from "./parser/decoder.js";
+import decodeCdifValue from "./parser/decoder.js";
 import {PrettyTextWriter, writeCdifValueText} from "./serializer/stringifier.js";
 
 /**

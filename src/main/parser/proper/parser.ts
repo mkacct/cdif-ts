@@ -6,9 +6,9 @@ import {CDIFSyntaxError} from "../../errors.js";
 import {CDIFValue} from "../../general.js";
 import {ParserOptions} from "../../options.js";
 import {Token} from "../tokenizer.js";
-import {ASTNodeID, ASTObject, ASTValue, createSectionSyntaxTree} from "./analyzer.js";
-import {evaluateAstValue} from "./evaluator.js";
-import {handleDirectives} from "./preparser.js";
+import createSectionSyntaxTree, {ASTNodeID, ASTObject, ASTValue} from "./analyzer.js";
+import evaluateAstValue from "./evaluator.js";
+import handleDirectives from "./preparser.js";
 
 export enum SectionID {
 	MAIN,
@@ -27,7 +27,7 @@ export enum SectionID {
  * @throws {CDIFReferenceError} if a component reference is not defined
  * @throws {CDIFTypeError} if a spread expression is used with a component of the wrong type
 */
-export function parseCdifTokens(
+export default function parseCdifTokens(
 	tokens: ReadonlyArray<Token>,
 	options: Required<ParserOptions>,
 	cdifVersion: number

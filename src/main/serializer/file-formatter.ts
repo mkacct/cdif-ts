@@ -37,7 +37,7 @@ export interface FileOptions {
  * @returns cDIF file string (suitable for writing to a file)
  * @throws {Error} if `options` is invalid
  */
-export function formatCdifFile(cdifText: string, options: FileOptions, cdifVersion: number): string {
+export default function formatCdifFile(cdifText: string, options: FileOptions, cdifVersion: number): string {
 	const parsedOptions = parseFileOptions(options, cdifVersion);
 	return (
 		(parsedOptions.headerData ? `# cDIF ${parsedOptions.headerData.cdifVersionString}\n` : "")

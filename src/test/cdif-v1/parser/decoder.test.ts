@@ -6,7 +6,7 @@ import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
 import {CDIFValue} from "../../../main/general.js";
 import {parseParserOptions, ParserOptions} from "../../../main/options.js";
-import {decodeCdifValue, ParserPostprocessorFunction} from "../../../main/parser/decoder.js";
+import decodeCdifValue, {ParserPostprocessorFunction} from "../../../main/parser/decoder.js";
 import {CDIFBoolean, CDIFCharacter, CDIFFloat, CDIFInteger, CDIFNull, CDIFString} from "../../../main/primitive-value.js";
 import {CDIFCollection, CDIFObject} from "../../../main/structure.js";
 

@@ -18,7 +18,7 @@ import {SectionID} from "./parser.js";
  * @throws {CDIFDirectiveError} if a directive is used incorrectly
  * @throws {CDIFDirectiveError} if `allowUnexpectedVersionString` is false and the "cDIF" directive is used with an unexpected version string
  */
-export function handleDirectives(
+export default function handleDirectives(
 	tokens: ReadonlyArray<Token>,
 	options: Required<ParserOptions>,
 	cdifVersion: number

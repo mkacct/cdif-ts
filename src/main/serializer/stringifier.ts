@@ -11,7 +11,7 @@ import CDIFPrimitiveValue from "../primitive-value.js";
  * @returns `value` as cDIF text
  * @note this doesn't validate the cDIF version of any `CDIFPrimitiveValue`s in `value`; the encoder should've done that already
  */
-export function stringifyCdifValue(value: CDIFValue, options: Required<SerializerOptions>): string {
+export default function stringifyCdifValue(value: CDIFValue, options: Required<SerializerOptions>): string {
 	const writer = new PrettyTextWriter(options.indent ?? undefined);
 	writeCdifValueText(writer, value, options);
 	return writer.text;
