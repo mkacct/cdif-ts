@@ -27,7 +27,10 @@ const value: unknown = cdif.parse(cdifText); // JS value
 ### Serialization
 
 ```typescript
-const cdif = new CDIF();
+const cdif = new CDIF({serializer: {
+	indent: "\t",
+	structureEntrySeparator: ";"
+}});
 const value: unknown = /* input JS value */;
 // For general use:
 const valueText: string = cdif.serialize(value); // cDIF value text
