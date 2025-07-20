@@ -10,9 +10,14 @@ import {ParserPostprocessorFunction, struct_ParserPostprocessorFunction} from ".
  * @param fn the postprocessor function to apply if the type matches
  * @returns the postprocessor function
  */
-export function postprocessType(type: string, fn: ParserPostprocessorFunction): ParserPostprocessorFunction {
+export function postprocessType(
+	type: string,
+	fn: (data: Parameters<ParserPostprocessorFunction>[0] & {type: string}) => ReturnType<ParserPostprocessorFunction>
+): ParserPostprocessorFunction {
 	if (!ss.is(type, ss.string())) {throw new TypeError(`type must be a string`);}
-	if (!ss.is(fn, struct_ParserPostprocessorFunction)) {throw new TypeError(`fn must be a ParserPostprocessorFunction`);}
+	if (!ss.is(fn, struct_ParserPostprocessorFunction)) {
+		throw new TypeError(`fn must be a ParserPostprocessorFunction`);
+	}
 	return ({key, type: actualType, value}) => {
 		if (actualType === type) {
 			return fn({key, type: actualType, value});
