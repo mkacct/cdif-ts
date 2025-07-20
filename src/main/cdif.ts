@@ -1,8 +1,8 @@
 // CDIF class: the main entry point of the cDIF API
 
 import * as ss from "superstruct";
-import {CDIFError} from "./errors.js";
-import {CDIFValue} from "./general.js";
+import {CDIFDirectiveError, CDIFError} from "./errors.js";
+import {CDIFValue, extractCdifMajorVersion} from "./general.js";
 import {CDIFOptions, parseOptions, ParserOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
 import decodeCdifValue from "./parser/decoder.js";
 import parseCdifTokens from "./parser/proper/parser.js";
@@ -121,6 +121,24 @@ export default class CDIF { // The package's default export (exported as default
 	public createPrimitiveValue(cdifText: string): CDIFPrimitiveValue {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
 		return createPrimVal(cdifText, this.#cdifVersion);
+	}
+
+	/**
+	 * @param cdifText a valid cDIF string (read from a file or otherwise)
+	 * @returns the cDIF major version, or `undefined` if no "cDIF" directive is present
+	 * @throws {CDIFDirectiveError} if an initial "cDIF" directive is present but has an invalid version string
+	 */
+	public static getCdifVersion(cdifText: string): number | undefined {
+		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
+		const match = cdifText.split("\n", 1)[0].trimEnd().match(/^#\s*cDIF\s*(.*)$/us);
+		if (!match) {return undefined;}
+		try {
+			return extractCdifMajorVersion(match[1]);
+		} catch (err) {
+			if (err instanceof RangeError) {
+				throw new CDIFDirectiveError(err.message);
+			} else {throw err;}
+		}
 	}
 
 }
