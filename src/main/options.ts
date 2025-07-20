@@ -13,7 +13,7 @@ export interface CDIFOptions {
 	/** Integer major version of cDIF to use (defaults to latest) */
 	readonly cdifVersion?: number;
 	/** Options pertaining to the parser */
-	parser?: ParserOptions;
+	readonly parser?: ParserOptions;
 	/** Options pertaining to the serializer */
 	readonly serializer?: SerializerOptions;
 }
