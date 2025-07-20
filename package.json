@@ -2,7 +2,7 @@
 	"name": "@mkacct/cdif",
 	"version": "0.1.0",
 	"author": {"name": "MK", "url": "https://mkps.app"},
-	"description": "cDIF parser/serializer for TypeScript",
+	"description": "cDIF parser/serializer written in TypeScript",
 	"keywords": ["cDIF", "parser", "serializer"],
 	"repository": {"type": "git", "url": "git+https://github.com/mkacct/cdif-ts.git"},
 	"bugs": {"url": "https://github.com/mkacct/cdif-ts/issues"},
