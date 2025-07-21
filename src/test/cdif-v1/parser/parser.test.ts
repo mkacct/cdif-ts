@@ -57,6 +57,7 @@ suite("Parse", (): void => {
 				42.6e-1,
 				1.,
 				.1,
+				"", // empty string
 				"foo\\tbar",
 				\`foo\\tbar\`, /* oh hi
 				still in the comment
@@ -82,6 +83,7 @@ suite("Parse", (): void => {
 			4.26,
 			1,
 			0.1,
+			"",
 			"foo\tbar",
 			"foo\\tbar",
 			null,
