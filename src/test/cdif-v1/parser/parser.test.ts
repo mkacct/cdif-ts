@@ -120,6 +120,27 @@ suite("Parse", (): void => {
 		});
 	});
 
+	test("One-line concise values", (): void => {
+		assert.deepEqual(cdif.parse(block(3, `
+			Thing{foo:12,bar:0o11,baz:+1.2e-1,idk:undef,qux:[true,{a:$a},...$items,],color:Color{red:1,green:2,blue:3}}
+			# components
+			{a:3,items:['c';"asdf";"""1"2"3""";\`"\`]}
+		`)), {
+			foo: 12,
+			bar: 9,
+			baz: 0.12,
+			qux: [
+				true,
+				{a: 3},
+				"c",
+				"asdf",
+				`1"2"3`,
+				`"`
+			],
+			color: "#010203"
+		});
+	});
+
 	test("Example from specification", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
 			# cDIF 1.0.1

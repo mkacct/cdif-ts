@@ -71,6 +71,7 @@ function nextTokenization(text: string, index: number): TokenLike<TokenID | null
 		{regex: /[\p{L}_][\p{L}\d$_]*/yus, type: TokenID.NAME},
 		{regex: /\$[\p{L}_][\p{L}\d$_]*/yus, type: TokenID.COMPONENT_REFERENCE},
 		// number types are crudely validated (the primitive value decoder validates them for real later)
+		// float before integer to ensure part before dot isn't tokenized as integer
 		{regex: /[+-]?infinity/yus, type: TokenID.OTHER_LITERAL}, // infinity that NAME doesn't match (because sign)
 		{regex: /[+-]?(?:\d[\d_]*)?\.[\d_]*(?:[eE][+-]?[\d_]*)?/yus, type: TokenID.OTHER_LITERAL}, // float
 		{regex: /[+-]?(?:0[\da-zA-Z_]*|\d[\d_]*)/yus, type: TokenID.OTHER_LITERAL}, // integer
