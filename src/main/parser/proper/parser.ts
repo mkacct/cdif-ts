@@ -25,6 +25,7 @@ export enum SectionID {
  * @throws {CDIFDirectiveError} if a directive is used incorrectly
  * @throws {CDIFDirectiveError} if `allowUnexpectedVersionString` is false and the "cDIF" directive is used with an unexpected version string
  * @throws {CDIFReferenceError} if a component reference is not defined
+ * @throws {CDIFReferenceError} if a circular component reference is encountered
  * @throws {CDIFTypeError} if a spread expression is used with a component of the wrong type
 */
 export default function parseCdifTokens(

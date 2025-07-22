@@ -14,6 +14,7 @@ import {ASTNodeID, ASTSpreadReference, ASTValue} from "./analyzer.js";
  * @returns `CDIFValue` representing main section
  * @throws {CDIFSyntaxError} if a primitive value node's `cdifText` is not a valid cDIF primitive value
  * @throws {CDIFReferenceError} if a component reference node does not reference a defined component
+ * @throws {CDIFReferenceError} if a circular component reference is encountered
  * @throws {CDIFTypeError} if a component is used in a spread expression where its type is not allowed
  */
 export default function evaluateAstValue(
