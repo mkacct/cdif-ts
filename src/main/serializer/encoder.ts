@@ -28,12 +28,12 @@ type PreprocessorResult = (
 );
 
 /**
- * @param key the key of the property being serialized (or `null` for the root value)
- * @param value the value to serialize
+ * @param key the key of the property being encoded (or `null` for the root value)
+ * @param value the value to encode
  * @param options
  * @param cdifVersion
  * @param refs set of parent objects, for detecting circular references
- * @returns the serialized `CDIFValue`, or `undefined` if the value should be omitted
+ * @returns the encoded `CDIFValue`, or `undefined` if the value should be omitted
  * @throws {CDIFError} if `value` is a `CDIFPrimitiveValue` created with the wrong cDIF version
  * @throws {CDIFError} in strict mode, if a preprocessor function tries to omit a collection value
  * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name

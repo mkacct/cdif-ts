@@ -73,7 +73,7 @@ export default class CDIF { // The package's default export (exported as default
 
 	/**
 	 * Converts a JS value to a cDIF data string.
-	 * @param value a JS value (usually an object or array)
+	 * @param value a JS value (usually an object or array) to be converted
 	 * @returns `value` converted to a cDIF data string
 	 * @throws {CDIFError} if any value is a `CDIFPrimitiveValue` created with the wrong cDIF version
 	 * @throws {CDIFError} if a preprocessor function tries to omit the root value, or, in strict mode, a collection value
@@ -97,6 +97,7 @@ export default class CDIF { // The package's default export (exported as default
 	 * @throws {CDIFError} if a preprocessor function tries to omit the root value, or, in strict mode, a collection value
 	 * @throws {CDIFSyntaxError} if an object property name is not a valid cDIF name
 	 * @throws {CDIFSyntaxError} if a preprocessor function returns a type name that is not a valid cDIF type name
+	 * @throws {CDIFTypeError} if a circular reference is encountered
 	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
 	public serializeFile(value: unknown, options?: FileOptions): string {
