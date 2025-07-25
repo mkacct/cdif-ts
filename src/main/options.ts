@@ -54,12 +54,12 @@ export interface SerializerOptions {
 	readonly indent?: string | null;
 	/**
 	 * Separator between object or collection entries in the serialized cDIF text
-	 * (defaults to `,`)
+	 * (defaults to `","`)
 	 */
 	readonly structureEntrySeparator?: "," | ";";
 	/**
 	 * Whether a separator should be added after the last entry in an object or collection
-	 * (defaults to `true` iff `structureEntrySeparator` is `;`)
+	 * (defaults to `true` iff `structureEntrySeparator` is `";"`)
 	 */
 	readonly addFinalStructureEntrySeparator?: boolean;
 	/**
