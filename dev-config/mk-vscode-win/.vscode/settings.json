@@ -6,6 +6,7 @@
 		"src/test": "test"
 	},
 	"typescript.preferences.autoImportFileExcludePatterns": [
-		"**/src/main/extensions/ss-util.ts"
+		"**/src/main/extensions/ss-util.ts",
+		"**/src/main/symbol.ts"
 	]
 }
