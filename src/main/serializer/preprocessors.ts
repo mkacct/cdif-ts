@@ -2,7 +2,7 @@
 
 import * as ss from "superstruct";
 import CDIF from "../cdif.js";
-import {ss_defineFunc, ss_readonlyArray} from "../extensions/ss-util.js";
+import * as ssx from "../extensions/ss-util.js";
 import {isObject} from "../general.js";
 import {SerializerPreprocessorFunction} from "./encoder.js";
 
@@ -13,7 +13,7 @@ import {SerializerPreprocessorFunction} from "./encoder.js";
  * @note does not affect arrays
  */
 export function filterObjectProperties(names: ReadonlyArray<string>): SerializerPreprocessorFunction {
-	if (!ss.is(names, ss_readonlyArray(ss.string()))) {throw new TypeError(`names must be an array of strings`);}
+	if (!ss.is(names, ssx.readonlyArray(ss.string()))) {throw new TypeError(`names must be an array of strings`);}
 	return ({key}) => {
 		if ((typeof key === "string") && !names.includes(key)) {
 			return CDIF.OMIT_PROPERTY;
@@ -52,7 +52,7 @@ export function assignType(
 	}) => boolean
 ): SerializerPreprocessorFunction {
 	if (!ss.is(type, ss.string())) {throw new TypeError(`type must be a string`);}
-	if (!ss.is(condition, ss_defineFunc("condition", 1))) {throw new TypeError(`condition must be a 1-argument function`);}
+	if (!ss.is(condition, ssx.defineFunc("condition", 1))) {throw new TypeError(`condition must be a 1-argument function`);}
 	return ({key, value}) => {
 		if (isObject(value) && condition({key, value})) {
 			return {type, value};

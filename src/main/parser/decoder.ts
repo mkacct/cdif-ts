@@ -3,7 +3,7 @@
 import * as ss from "superstruct";
 import {Describe} from "superstruct";
 import CDIF from "../cdif.js";
-import {ss_defineFunc} from "../extensions/ss-util.js";
+import * as ssx from "../extensions/ss-util.js";
 import {CDIFValue} from "../general.js";
 import {ParserOptions} from "../options.js";
 import CDIFPrimitiveValue from "../primitive-value.js";
@@ -94,7 +94,7 @@ function runPostprocessors(
 
 // type validation:
 
-export const struct_ParserPostprocessorFunction = ss_defineFunc<ParserPostprocessorFunction>(
+export const struct_ParserPostprocessorFunction = ssx.defineFunc<ParserPostprocessorFunction>(
 	"ParserPostprocessorFunction", 1
 );
 

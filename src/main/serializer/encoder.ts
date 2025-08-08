@@ -5,7 +5,7 @@ import sw from "@mkacct/ts-util/switch";
 import * as ss from "superstruct";
 import CDIF from "../cdif.js";
 import {CDIFError, CDIFTypeError} from "../errors.js";
-import {ss_defineFunc, ss_tsObject} from "../extensions/ss-util.js";
+import * as ssx from "../extensions/ss-util.js";
 import {CDIFValue, isObject} from "../general.js";
 import {SerializerOptions} from "../options.js";
 import CDIFPrimitiveValue, {CDIFBoolean, CDIFFloat, CDIFInfinite, CDIFInteger, CDIFNull, CDIFString} from "../primitive-value.js";
@@ -212,11 +212,11 @@ function encodeCdifString(str: string, cdifVersion: number): CDIFString {
 
 // type validation:
 
-export const struct_SerializerPreprocessorFunction = ss_defineFunc<SerializerPreprocessorFunction>(
+export const struct_SerializerPreprocessorFunction = ssx.defineFunc<SerializerPreprocessorFunction>(
 	"SerializerPreprocessorFunction", 1
 );
 
 const struct_PreprocessorResult = ss.union([ // this is beyond the capabilities of Describe :(
 	ss.object({value: ss.unknown()}),
-	ss.object({type: ss.string(), value: ss_tsObject()})
+	ss.object({type: ss.string(), value: ssx.tsObject()})
 ]);

@@ -4,5 +4,8 @@
 		"src": "src",
 		"src/main": "app",
 		"src/test": "test"
-	}
+	},
+	"typescript.preferences.autoImportFileExcludePatterns": [
+		"**/src/main/extensions/ss-util.ts"
+	]
 }

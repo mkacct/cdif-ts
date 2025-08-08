@@ -5,7 +5,7 @@ import {isValue} from "@mkacct/ts-util";
 import * as ss from "superstruct";
 import {Describe} from "superstruct";
 import {CDIF_LATEST} from "./cdif.js";
-import {ss_readonlyArray} from "./extensions/ss-util.js";
+import * as ssx from "./extensions/ss-util.js";
 import {ParserPostprocessorFunction, struct_ParserPostprocessorFunction} from "./parser/decoder.js";
 import {SerializerPreprocessorFunction, struct_SerializerPreprocessorFunction} from "./serializer/encoder.js";
 
@@ -125,12 +125,12 @@ const struct_SerializerOptions: Describe<SerializerOptions> = ss.object({
 	indent: ss.optional(ss.nullable(ss.string())),
 	structureEntrySeparator: ss.optional(ss.enums([",", ";"])),
 	addFinalStructureEntrySeparator: ss.optional(ss.boolean()),
-	preprocessors: ss.optional(ss_readonlyArray(struct_SerializerPreprocessorFunction))
+	preprocessors: ss.optional(ssx.readonlyArray(struct_SerializerPreprocessorFunction))
 });
 
 const struct_ParserOptions: Describe<ParserOptions> = ss.object({
 	useBigInt: ss.optional(ss.boolean()),
-	postprocessors: ss.optional(ss_readonlyArray(struct_ParserPostprocessorFunction)),
+	postprocessors: ss.optional(ssx.readonlyArray(struct_ParserPostprocessorFunction)),
 	allowUnexpectedVersionString: ss.optional(ss.boolean())
 });
 
