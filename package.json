@@ -26,7 +26,8 @@
 		}
 	},
 	"scripts": {
-		"prebuild": "rimraf build",
+		"clean": "rimraf build",
+		"prebuild": "npm run clean",
 		"build": "npx tsc",
 		"test": "node --test \"build/test/**/!(*.sub).test.js\""
 	},

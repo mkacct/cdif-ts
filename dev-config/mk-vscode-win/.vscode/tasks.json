@@ -22,7 +22,7 @@
 			"script": "test",
 			"options": {
 				"env": {
-					"NODE_ENV": "test",
+					"NODE_ENV": "test"
 				}
 			},
 			"presentation": {
@@ -43,8 +43,15 @@
 			}
 		},
 		{
+			"label": "clean",
+			"type": "npm",
+			"script": "clean"
+		},
+		{
 			"label": "npm install",
-			"runOptions": {"runOn": "folderOpen"},
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
 			"type": "shell",
 			"command": "npm install"
 		}

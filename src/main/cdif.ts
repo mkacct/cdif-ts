@@ -37,7 +37,9 @@ export default class CDIF { // The package's default export (exported as default
 	 * @throws {Error} if `options` is invalid
 	 */
 	public constructor(options?: CDIFOptions) {
-		if (!ss.is(options, struct_CDIFOptions)) {throw new TypeError(`options must be a valid CDIFOptions object`);}
+		if (!ss.is(options, ss.optional(struct_CDIFOptions))) {
+			throw new TypeError(`options must be a valid CDIFOptions object`);
+		}
 		const parsedOptions = parseOptions(options);
 		this.#cdifVersion = parsedOptions.cdifVersion;
 		this.#parserOptions = parsedOptions.parser;
@@ -101,9 +103,10 @@ export default class CDIF { // The package's default export (exported as default
 	 * @throws {CDIFTypeError} in strict mode, if any value is of a disallowed type
 	 */
 	public serializeFile(value: unknown, options?: FileOptions): string {
-		if (options === undefined) {options = {};}
-		if (!ss.is(options, struct_FileOptions)) {throw new TypeError(`options must be a valid FileOptions object`);}
-		return this.#serializeImpl(value, options);
+		if (!ss.is(options, ss.optional(struct_FileOptions))) {
+			throw new TypeError(`options must be a valid FileOptions object`);
+		}
+		return this.#serializeImpl(value, options ?? {});
 	}
 
 	#serializeImpl(value: unknown, fileOptions?: FileOptions) {
