@@ -1,6 +1,5 @@
 {
 	"version": "2.0.0",
-	"problemMatcher": [],
 	"presentation": {
 		"echo": false,
 		"panel": "dedicated",
@@ -10,14 +9,32 @@
 	},
 	"tasks": [
 		{
-			"label": "test",
-			"group": {
-				"kind": "test",
-				"isDefault": true
+			"label": "npm install",
+			"runOptions": {"runOn": "folderOpen"},
+			"type": "shell",
+			"command": "npm install",
+			"problemMatcher": []
+		},
+		{
+			"label": "clean",
+			"type": "npm",
+			"script": "clean",
+			"problemMatcher": []
+		},
+		{
+			"label": "build",
+			"group": {"kind": "build", "isDefault": true},
+			"type": "npm",
+			"script": "build",
+			"presentation": {
+				"reveal": "always"
 			},
-			"dependsOn": [
-				"build"
-			],
+			"problemMatcher": []
+		},
+		{
+			"label": "test",
+			"group": {"kind": "test", "isDefault": true},
+			"dependsOn": ["build"],
 			"type": "npm",
 			"script": "test",
 			"options": {
@@ -28,32 +45,8 @@
 			"presentation": {
 				"reveal": "always",
 				"close": false
-			}
-		},
-		{
-			"label": "build",
-			"group": {
-				"kind": "build",
-				"isDefault": true
 			},
-			"type": "npm",
-			"script": "build",
-			"presentation": {
-				"reveal": "always"
-			}
-		},
-		{
-			"label": "clean",
-			"type": "npm",
-			"script": "clean"
-		},
-		{
-			"label": "npm install",
-			"runOptions": {
-				"runOn": "folderOpen"
-			},
-			"type": "shell",
-			"command": "npm install"
+			"problemMatcher": []
 		}
 	]
 }
