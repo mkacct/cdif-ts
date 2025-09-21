@@ -6,7 +6,7 @@ import {CDIFValue, extractCdifMajorVersion} from "./general.js";
 import {CDIFOptions, parseOptions, ParserOptions, SerializerOptions, struct_CDIFOptions} from "./options.js";
 import decodeCdifValue from "./parser/decoder.js";
 import parseCdifTokens from "./parser/proper/parser.js";
-import tokenizeCdifFile from "./parser/tokenizer.js";
+import tokenizeCdifFile, {Token} from "./parser/tokenizer.js";
 import CDIFPrimitiveValue, {createPrimVal} from "./primitive-value.js";
 import encodeCdifValue from "./serializer/encoder.js";
 import formatCdifFile, {FileOptions, struct_FileOptions} from "./serializer/file-formatter.js";
@@ -64,7 +64,7 @@ export default class CDIF { // The package's default export (exported as default
 	}
 
 	#parseImpl(cdifText: string): unknown {
-		const tokens = tokenizeCdifFile(cdifText);
+		const tokens: Token[] = tokenizeCdifFile(cdifText);
 		const parsedCdifValue: CDIFValue = parseCdifTokens(tokens, this.#parserOptions, this.#cdifVersion);
 		const res: {value: unknown} | undefined = decodeCdifValue(
 			null, parsedCdifValue, this.#parserOptions, this.#cdifVersion

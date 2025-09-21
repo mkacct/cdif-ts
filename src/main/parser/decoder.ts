@@ -37,7 +37,7 @@ type PostprocessorResult = {value: unknown};
  * @param value the `CDIFValue` to parse
  * @param options
  * @param cdifVersion
- * @returns `{value}` where `value` the parsed value, or `undefined` if the value should be omitted
+ * @returns `{value}` where `value` is the parsed value, or `undefined` if the value should be omitted
  */
 export default function decodeCdifValue(
 	key: null | string | number,

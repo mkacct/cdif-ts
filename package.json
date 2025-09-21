@@ -1,6 +1,6 @@
 {
 	"name": "@mkacct/cdif",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"author": {"name": "MK", "url": "https://mkps.app"},
 	"description": "cDIF parser/serializer written in TypeScript",
 	"keywords": ["cDIF", "parser", "serializer"],

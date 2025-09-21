@@ -132,7 +132,7 @@ function tryTextLiteralTokenizerCase(
 			);}
 			const entityMatchText = checkYRegexAtPos(text, entityRegex, index);
 			if (!isValue(entityMatchText)) {throw new CDIFSyntaxError(
-					`In textual literal: unknown token (index ${index}; character '${text[index]}')`
+				`In textual literal: unknown token (index ${index}; character '${text[index]}')`
 			);}
 			index += entityMatchText.length;
 		}
