@@ -14,7 +14,9 @@ suite("Parser decoder", (): void => {
 
 	const VER: number = 1;
 
-	type DecoderTestFunction = (value: CDIFValue) => {value: unknown} | undefined;
+	interface DecoderTestFunction {
+		(value: CDIFValue): {value: unknown} | undefined;
+	}
 
 	function testDecoder(options: ParserOptions, cdifVersion: number): DecoderTestFunction {
 		const reqOptions: Required<ParserOptions> = parseParserOptions(options);

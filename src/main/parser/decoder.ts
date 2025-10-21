@@ -13,22 +13,24 @@ import CDIFStructure from "../structure.js";
  * A function used to customize parsing behavior, ex. to create objects of the correct type.
  * @note return `{value: unknown}` to replace the value, `CDIF.OMIT_PROPERTY` to omit the property, or void to try the next preprocessor
  */
-export type ParserPostprocessorFunction = (data: {
-	/** The key of the property being postprocessed (or `null` for the root value) */
-	key: null | string | number;
-} & (
-	{
-		/** The type name of the structure */
-		type: undefined;
-		/** The value to postprocess */
-		value: unknown;
-	} | {
-		/** The type name of the structure */
-		type: string;
-		/** The value to postprocess */
-		value: object;
-	}
-)) => PostprocessorResult | typeof CDIF.OMIT_PROPERTY | void;
+export interface ParserPostprocessorFunction {
+	(data: {
+		/** The key of the property being postprocessed (or `null` for the root value) */
+		key: null | string | number;
+	} & (
+		{
+			/** The type name of the structure */
+			type: undefined;
+			/** The value to postprocess */
+			value: unknown;
+		} | {
+			/** The type name of the structure */
+			type: string;
+			/** The value to postprocess */
+			value: object;
+		}
+	)): PostprocessorResult | typeof CDIF.OMIT_PROPERTY | void;
+}
 
 type PostprocessorResult = {value: unknown};
 
