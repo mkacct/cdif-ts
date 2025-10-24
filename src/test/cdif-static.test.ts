@@ -13,7 +13,7 @@ suite("CDIF static utilities", (): void => {
 			"foo";
 		`)), undefined);
 		assert.equal(CDIF.getCdifVersion(block(3, `
-			# cDIF 1.0.1
+			# cDIF 1.0.2
 			"foo";
 		`)), 1);
 		assert.equal(CDIF.getCdifVersion(block(3, `

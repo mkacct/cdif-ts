@@ -36,10 +36,10 @@ suite("Serialize file", (): void => {
 
 			`));
 			assert.equal(cdif.serializeFile(42, {
-				cdifVersionString: "1.0.1",
+				cdifVersionString: "1.0.2",
 				addFinalSemicolon: true
 			}), block(4, `
-				# cDIF 1.0.1
+				# cDIF 1.0.2
 				42.;
 
 			`));
@@ -60,10 +60,10 @@ suite("Serialize file", (): void => {
 
 			`));
 			assert.equal(cdif.serializeFile([1, 2, 3], {
-				cdifVersionString: "1.0.1",
+				cdifVersionString: "1.0.2",
 				addFinalSemicolon: true
 			}), block(4, `
-				# cDIF 1.0.1
+				# cDIF 1.0.2
 				[1., 2., 3.];
 
 			`));
@@ -92,10 +92,10 @@ suite("Serialize file", (): void => {
 
 			`));
 			assert.equal(cdif.serializeFile([1, 2, 3], {
-				cdifVersionString: "1.0.1",
+				cdifVersionString: "1.0.2",
 				addFinalSemicolon: true
 			}), block(4, `
-				# cDIF 1.0.1
+				# cDIF 1.0.2
 				[
 					1.;
 					2.;
@@ -110,9 +110,9 @@ suite("Serialize file", (): void => {
 		const cdif: CDIF = cdifs.default;
 		test("Version number validation", (): void => {
 			assert.equal(cdif.serializeFile(null, {
-				cdifVersionString: "1.0.1"
+				cdifVersionString: "1.0.2"
 			}), block(4, `
-				# cDIF 1.0.1
+				# cDIF 1.0.2
 				null
 
 			`));

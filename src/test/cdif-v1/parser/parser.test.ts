@@ -39,7 +39,7 @@ suite("Parse", (): void => {
 
 	test("\"cDIF\" directive", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
-			# cDIF 1.0.1
+			# cDIF 1.0.2
 			3;
 		`)), 3);
 		assert.throws(() => cdif.parse(block(3, `
@@ -143,7 +143,7 @@ suite("Parse", (): void => {
 
 	test("Example from specification", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
-			# cDIF 1.0.1
+			# cDIF 1.0.2
 			{
 				name: $myName;
 				displayColor: $hotPink;
@@ -189,7 +189,7 @@ suite("Parse", (): void => {
 		`)), CDIFDirectiveError);
 		assert.throws(() => cdif.parse(block(3, `
 			"foo";
-			# cDIF 1.0.1
+			# cDIF 1.0.2
 		`)), CDIFDirectiveError);
 		assert.throws(() => cdif.parse(block(3, `
 			"foo";

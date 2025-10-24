@@ -3,7 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/%40mkacct%2Fcdif)](https://www.npmjs.com/package/@mkacct/cdif)
 ![npm bundle size (scoped)](https://img.shields.io/bundlephobia/min/%40mkacct/cdif)
 
-This is a parser and serializer for [cDIF](https://github.com/mkacct/cdif/blob/main/spec.md), an intuitive and versatile textual data interchange format. The package is written in TypeScript, so it includes type definitions. It is up to date with cDIF version 1.0.1.
+This is a parser and serializer for [cDIF](https://github.com/mkacct/cdif/blob/main/spec.md), an intuitive and versatile textual data interchange format. The package is written in TypeScript, so it includes type definitions. It is up to date with cDIF version 1.0.2.
 
 To install:
 
@@ -52,7 +52,7 @@ const value: unknown = /* input JS value */;
 const valueText: string = cdif.serialize(value); // cDIF value text
 // For file output:
 const fileText: string = cdif.serializeFile(value, {
-    cdifVersionString: "1.0.1"
+    cdifVersionString: "1.0.2"
 }); // cDIF file text (includes initial "cDIF" directive)
 ```
 
