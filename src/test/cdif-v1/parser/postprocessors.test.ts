@@ -1,17 +1,18 @@
-// Suite "Included parser postprocessors": tests the included postprocessors (postprocessors.ts),
-// assuming the actual parser works correctly
+// tests the included parser postprocessors (postprocessors.ts), assuming the actual parser works correctly
 
 import {block} from "@mkacct/ts-util/strings";
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
-import {postprocessType} from "../../../main/parser/postprocessors.js";
+import {
+	postprocessType
+} from "../../../main/parser/postprocessors.js";
+import {VER} from "../context.js";
 
-suite("Included parser postprocessors", (): void => {
+suite("v1 postprocessors", (): void => {
 
-	const VER: number = 1;
+	suite("postprocessType()", (): void => {
 
-	{
 		const cdif = new CDIF({cdifVersion: VER, parser: {
 			postprocessors: [postprocessType("Color", ({value}) => {
 				if (
@@ -29,7 +30,7 @@ suite("Included parser postprocessors", (): void => {
 			})]
 		}});
 
-		test("postprocessType", (): void => {
+		test("example", (): void => {
 			assert.deepEqual(cdif.parse(block(4, `
 				[
 					Color {red: 255, green: 6, blue: 0},
@@ -40,6 +41,8 @@ suite("Included parser postprocessors", (): void => {
 				{red: 0, green: 255, blue: 0}
 			]);
 		});
-	}
+
+	});
+
 
 });

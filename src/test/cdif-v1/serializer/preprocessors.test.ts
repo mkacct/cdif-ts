@@ -1,25 +1,29 @@
-// Suite "Included serializer preprocessors": tests the included preprocessors (preprocessors.ts),
-// assuming the actual serializer works correctly
+// tests the included serializer preprocessors (preprocessors.ts), assuming the actual serializer works correctly
 
 import {block} from "@mkacct/ts-util/strings";
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
 import {SerializerPreprocessorFunction} from "../../../main/serializer/encoder.js";
-import {assignType, filterObjectProperties, useIntegers, usePreprocessMethods} from "../../../main/serializer/preprocessors.js";
+import {
+	assignType,
+	filterObjectProperties,
+	useIntegers,
+	usePreprocessMethods
+} from "../../../main/serializer/preprocessors.js";
+import {VER} from "../context.js";
 
-suite("Included serializer preprocessors", (): void => {
+suite("v1 preprocessors", (): void => {
 
-	const VER: number = 1;
+	suite("filterObjectProperties()", (): void => {
 
-	{
 		const cdif = new CDIF({cdifVersion: VER, serializer: {
 			preprocessors: [filterObjectProperties(["foo", "bar", "baz"])],
 			indent: "\t",
 			structureEntrySeparator: ";"
 		}});
 
-		test("filterObjectProperties", (): void => {
+		test("deep", (): void => {
 			assert.equal(cdif.serialize({
 				foo: "a",
 				bar: ["b", "c", "d"],
@@ -44,18 +48,26 @@ suite("Included serializer preprocessors", (): void => {
 				}
 			`));
 		});
-	}
 
-	{
+	});
+
+	suite("useIntegers()", (): void => {
+
 		const cdif = new CDIF({cdifVersion: VER, serializer: {
 			preprocessors: [useIntegers()],
 			indent: "\t",
 			structureEntrySeparator: ";"
 		}});
 
-		test("useIntegers", (): void => {
+		test("numbers with fractional part unaffected", (): void => {
 			assert.equal(cdif.serialize(42.125), `42.125`);
+		});
+
+		test("integers serialized as such", (): void => {
 			assert.equal(cdif.serialize(42), `42`);
+		});
+
+		test("deep, with BigInt example", (): void => {
 			assert.equal(cdif.serialize({
 				a: 1,
 				b: 2.5,
@@ -74,9 +86,11 @@ suite("Included serializer preprocessors", (): void => {
 				}
 			`));
 		});
-	}
 
-	{
+	});
+
+	suite("assignType()", (): void => {
+
 		const cdif = new CDIF({cdifVersion: VER, serializer: {
 			preprocessors: [
 				assignType("Foo", ({key}) => {
@@ -90,14 +104,17 @@ suite("Included serializer preprocessors", (): void => {
 			structureEntrySeparator: ";"
 		}});
 
-		test("assignType", (): void => {
-			assert.equal(cdif.serialize({ // primitives cannot have types
+		test("primitives unaffected (they cannot have types)", (): void => {
+			assert.equal(cdif.serialize({
 				foo: 1
 			}), block(4, `
 				{
 					foo: 1.;
 				}
 			`));
+		});
+
+		test("structures typed correctly", (): void => {
 			assert.equal(cdif.serialize({
 				foo: [1, 2]
 			}), block(4, `
@@ -128,9 +145,11 @@ suite("Included serializer preprocessors", (): void => {
 				}
 			`));
 		});
-	}
 
-	{
+	});
+
+	suite("usePreprocessMethods()", (): void => {
+
 		const cdif = new CDIF({cdifVersion: VER, serializer: {
 			preprocessors: [usePreprocessMethods()],
 			indent: "\t",
@@ -165,7 +184,7 @@ suite("Included serializer preprocessors", (): void => {
 			}
 		}
 
-		test("usePreprocessMethods", (): void => {
+		test("examples", (): void => {
 			assert.equal(cdif.serialize({
 				normalObj: {a: 1},
 				normalArr: [true],
@@ -194,6 +213,7 @@ suite("Included serializer preprocessors", (): void => {
 				}
 			`));
 		});
-	}
+
+	});
 
 });

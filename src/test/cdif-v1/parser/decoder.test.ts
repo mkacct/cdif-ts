@@ -1,5 +1,4 @@
-// Suite "Parser decoder": tests the decoder directly using the decodeCdifValue() function,
-// independently of any other parser components
+// tests the decoder directly using the decodeCdifValue() function, independently of any other parser components
 
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
@@ -7,12 +6,18 @@ import CDIF from "../../../main/cdif.js";
 import {CDIFValue} from "../../../main/general.js";
 import {parseParserOptions, ParserOptions} from "../../../main/options.js";
 import decodeCdifValue, {ParserPostprocessorFunction} from "../../../main/parser/decoder.js";
-import {CDIFBoolean, CDIFCharacter, CDIFFloat, CDIFInteger, CDIFNull, CDIFString} from "../../../main/primitive-value.js";
+import {
+	CDIFBoolean,
+	CDIFCharacter,
+	CDIFFloat,
+	CDIFInteger,
+	CDIFNull,
+	CDIFString
+} from "../../../main/primitive-value.js";
 import {CDIFCollection, CDIFObject} from "../../../main/structure.js";
+import {VER} from "../context.js";
 
-suite("Parser decoder", (): void => {
-
-	const VER: number = 1;
+suite("v1 decoder", (): void => {
 
 	interface DecoderTestFunction {
 		(value: CDIFValue): {value: unknown} | undefined;
@@ -73,7 +78,7 @@ suite("Parser decoder", (): void => {
 		useBigInt: true
 	}, VER);
 
-	test(`Primitive values`, (): void => {
+	test("primitive value", (): void => {
 		assert.deepEqual(decoderTestFn(new CDIFFloat(true, "42.125", 1n, VER)), {value: -421.25});
 		assert.deepEqual(decoderTestFn(new CDIFCharacter("\\U0001F600", VER)), {value: "😀"});
 		assert.deepEqual(decoderTestFn(new CDIFString(["a", "\\n", "b"], VER)), {value: "a\nb"});
@@ -81,11 +86,12 @@ suite("Parser decoder", (): void => {
 		assert.deepEqual(decoderTestFn(new CDIFNull(VER)), {value: null});
 	});
 
-	test("Decoded type of primitive integer", (): void => {
+	test("decoded type of primitive integer", (): void => {
 		assert.deepEqual(decoderTestFn(new CDIFInteger(147n, VER)), {value: 147});
 		assert.deepEqual(decoderTestFnBigInt(new CDIFInteger(147n, VER)), {value: 147n});
+	});
 
-		// should not affect values added by postprocessors
+	test("values added by postprocessors retain number type", (): void => {
 		assert.deepEqual(decoderTestFn(new CDIFCollection([
 			new CDIFObject(new Map<string, CDIFValue>([
 				["a", new CDIFInteger(531n, VER)]
@@ -98,7 +104,7 @@ suite("Parser decoder", (): void => {
 		])), {value: [{a: 531n, b: 42, c: 42n}]});
 	});
 
-	test("Simple structures", (): void => {
+	test("simple structures", (): void => {
 		assert.deepEqual(decoderTestFn(new CDIFCollection([])), {value: []})
 		assert.deepEqual(decoderTestFn(new CDIFObject(new Map<string, CDIFValue>())), {value: {}})
 		assert.deepEqual(decoderTestFn(new CDIFCollection([
@@ -117,7 +123,7 @@ suite("Parser decoder", (): void => {
 		}});
 	});
 
-	test("Preprocessors and types", (): void => {
+	test("preprocessors and types", (): void => {
 		assert.deepEqual(decoderTestFn(new CDIFObject(new Map<string, CDIFValue>([
 			["name", new CDIFString("Maddie".split(""), VER)],
 			["coolUsername", new CDIFString("m4ddie".split(""), VER)],

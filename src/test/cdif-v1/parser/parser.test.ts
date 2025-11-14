@@ -1,14 +1,13 @@
-// Suite "Parse": tests the whole parser using CDIF.parse()
+// tests the whole parser
 
 import {block} from "@mkacct/ts-util/strings";
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
 import {CDIFDirectiveError, CDIFReferenceError, CDIFSyntaxError, CDIFTypeError} from "../../../main/errors.js";
+import {VER} from "../context.js";
 
-suite("Parse", (): void => {
-
-	const VER: number = 1;
+suite("v1 CDIF.parse()", (): void => {
 
 	const cdif: CDIF = new CDIF({cdifVersion: VER, parser: {
 		postprocessors: [
@@ -31,7 +30,7 @@ suite("Parse", (): void => {
 		]
 	}});
 
-	test("Simple primitive", (): void => {
+	test("simple primitive", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
 			"Foo"
 		`)), "Foo");
@@ -42,13 +41,16 @@ suite("Parse", (): void => {
 			# cDIF 1.0.2
 			3;
 		`)), 3);
+	});
+
+	test("\"cDIF\" directive; wrong major version", (): void => {
 		assert.throws(() => cdif.parse(block(3, `
 			# cDIF 2.0
 			3;
 		`)), CDIFDirectiveError);
 	});
 
-	test("Primitive values and comments", (): void => {
+	test("primitive values and comments", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
 			[ // hello
 				true,
@@ -103,7 +105,7 @@ suite("Parse", (): void => {
 		]);
 	});
 
-	test("Object behaviors", (): void => {
+	test("object behaviors", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
 			{
 				foo: "one";
@@ -120,7 +122,7 @@ suite("Parse", (): void => {
 		});
 	});
 
-	test("One-line concise values", (): void => {
+	test("one-line concise values", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
 			Thing{foo:12,bar:0o11,baz:+1.2e-1,idk:undef,qux:[true,{a:$a},...$items,],color:Color{red:1,green:2,blue:3}}
 			# components
@@ -141,7 +143,7 @@ suite("Parse", (): void => {
 		});
 	});
 
-	test("Example from specification", (): void => {
+	test("example from specification", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
 			# cDIF 1.0.2
 			{
@@ -178,102 +180,137 @@ suite("Parse", (): void => {
 		});
 	});
 
-	test("Directive errors", (): void => {
-		assert.throws(() => cdif.parse(block(3, `
-			#
-			"foo";
-		`)), CDIFSyntaxError);
-		assert.throws(() => cdif.parse(block(3, `
-			# thisWillNeverBeARealDirectiveName
-			"foo";
-		`)), CDIFDirectiveError);
-		assert.throws(() => cdif.parse(block(3, `
-			"foo";
-			# cDIF 1.0.2
-		`)), CDIFDirectiveError);
-		assert.throws(() => cdif.parse(block(3, `
-			"foo";
-			# components
-			{}
-			# components
-			{}
-		`)), CDIFDirectiveError);
-	});
+	suite("directive errors", (): void => {
 
-	test("Components section errors", (): void => {
-		assert.throws(() => cdif.parse(block(3, `
-			"foo";
-			# components
-			"foo";
-		`)), CDIFSyntaxError);
-		assert.throws(() => cdif.parse(block(3, `
-			"foo";
-			# components
-			WrongPlaceForATypeName {};
-		`)), CDIFSyntaxError);
-		assert.throws(() => cdif.parse(block(3, `
-			"foo";
-			# components
-			{
-				a: {};
-				...$a;
-			}
-		`)), CDIFSyntaxError);
-	});
-
-	test("Evaluator errors", (): void => {
-		assert.throws(() => cdif.parse(block(3, `
-			$a;
-			# components
-			{}
-		`)), CDIFReferenceError);
-		assert.throws(() => cdif.parse(block(3, `
-			{
-				...$a;
-			}
-			# components
-			{
-				a: [1, 2, 3];
-			}
-		`)), CDIFTypeError);
-		assert.throws(() => cdif.parse(block(3, `
-			[
-				...$a;
-			]
-			# components
-			{
-				a: {x: 1, y: 2};
-			}
-		`)), CDIFTypeError);
-	});
-
-	test("Circular reference detection", (): void => {
-		// duplicate and chained reference, but no circular ref
-		assert.deepEqual(cdif.parse(block(3, `
-			{
-				a: $a;
-				b: $a;
-			}
-			#components
-			{
-				a: $c;
-				c: 1
-			}
-		`)), {
-			a: 1,
-			b: 1
+		test("empty directive", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				#
+				"foo";
+			`)), CDIFSyntaxError);
 		});
-		// circular reference
-		assert.throws(() => cdif.parse(block(3, `
-			{
-				a: $b;
-			}
-			#components
-			{
-				b: $c;
-				c: $b;
-			}
-		`)), CDIFReferenceError);
+
+		test("unrecognized directive", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				# thisWillNeverBeARealDirectiveName
+				"foo";
+			`)), CDIFDirectiveError);
+		});
+
+		test("\"cDIF\" directive not at top", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				"foo";
+				# cDIF 1.0.2
+			`)), CDIFDirectiveError);
+		});
+
+		test("duplicate \"components\" directive", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				"foo";
+				# components
+				{}
+				# components
+				{}
+			`)), CDIFDirectiveError);
+		});
+
+	});
+
+	suite("components section errors", (): void => {
+
+		test("must be structure", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				"foo";
+				# components
+				"foo";
+			`)), CDIFSyntaxError);
+		});
+
+		test("top level cannot have type identifier", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				"foo";
+				# components
+				WrongPlaceForATypeName {};
+			`)), CDIFSyntaxError);
+		});
+
+		test("top level cannot use spread operator", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				"foo";
+				# components
+				{
+					a: {};
+					...$a;
+				}
+			`)), CDIFSyntaxError);
+		});
+
+	});
+
+	suite("evaluator errors", (): void => {
+
+		test("no such component", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				$a;
+				# components
+				{}
+			`)), CDIFReferenceError);
+		});
+
+		test("spread must be into same type of structure", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				{
+					...$a;
+				}
+				# components
+				{
+					a: [1, 2, 3];
+				}
+			`)), CDIFTypeError);
+			assert.throws(() => cdif.parse(block(4, `
+				[
+					...$a;
+				]
+				# components
+				{
+					a: {x: 1, y: 2};
+				}
+			`)), CDIFTypeError);
+		});
+
+	});
+
+	suite("circular reference detection", (): void => {
+
+		test("duplicate and chained reference, but no circular reference", (): void => {
+			assert.deepEqual(cdif.parse(block(4, `
+				{
+					a: $a;
+					b: $a;
+				}
+				#components
+				{
+					a: $c;
+					c: 1
+				}
+			`)), {
+				a: 1,
+				b: 1
+			});
+		});
+
+		test("circular reference", (): void => {
+			assert.throws(() => cdif.parse(block(4, `
+				{
+					a: $b;
+				}
+				#components
+				{
+					b: $c;
+					c: $b;
+				}
+			`)), CDIFReferenceError);
+		});
+
 	});
 
 });

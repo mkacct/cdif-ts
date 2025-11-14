@@ -1,4 +1,4 @@
-// Suite "Serialize": tests the whole serializer (but not file formatting) using CDIF.serialize()
+// tests the whole serializer (but not file formatting)
 
 import {block, fold} from "@mkacct/ts-util/strings";
 import {matrixStrategy} from "@mkacct/ts-util/tests";
@@ -8,11 +8,10 @@ import CDIF from "../../../main/cdif.js";
 import {CDIFError, CDIFSyntaxError, CDIFTypeError} from "../../../main/errors.js";
 import {CDIFCharacter, CDIFInteger, CDIFNull, CDIFString} from "../../../main/primitive-value.js";
 import {SerializerPreprocessorFunction} from "../../../main/serializer/encoder.js";
-import {reverseRecord} from "../test-util.js";
+import {reverseRecord} from "../../test-util.js";
+import {VER} from "../context.js";
 
-suite("Serialize", (): void => {
-
-	const VER: number = 1;
+suite("v1 CDIF.serialize()", (): void => {
 
 	const preprocessors: ReadonlyArray<SerializerPreprocessorFunction> = [
 		({key, value}) => { // priority example
@@ -52,7 +51,7 @@ suite("Serialize", (): void => {
 
 	matrixStrategy({cdif: Object.values(cdifs)}, (matrix): void => {
 		const cdif: CDIF = matrix.cdif;
-		test(`Primitive values (${cdifNames.get(cdif)})`, (): void => {
+		test(`primitive values (${cdifNames.get(cdif)})`, (): void => {
 			assert.equal(cdif.serialize(42n), `42`);
 			assert.equal(cdif.serialize("foo"), `"foo"`);
 			assert.equal(cdif.serialize(null), `null`);
@@ -61,7 +60,7 @@ suite("Serialize", (): void => {
 
 	matrixStrategy({cdif: Object.values(cdifs)}, (matrix): void => {
 		const cdif: CDIF = matrix.cdif;
-		test(`Pre-encoded primitive values (${cdifNames.get(cdif)})`, (): void => {
+		test(`pre-encoded primitive values (${cdifNames.get(cdif)})`, (): void => {
 			assert.equal(cdif.serialize(new CDIFInteger(42n, VER)), `42`);
 			assert.equal(cdif.serialize(new CDIFString("foo".split(""), VER)), `"foo"`);
 			assert.equal(cdif.serialize(new CDIFNull(VER)), `null`);
@@ -70,7 +69,7 @@ suite("Serialize", (): void => {
 
 	{
 		const cdif: CDIF = cdifs.default;
-		test("Simple structures (default)", (): void => {
+		test("simple structures (default)", (): void => {
 			assert.equal(cdif.serialize([]), `[]`);
 			assert.equal(cdif.serialize({}), `{}`);
 			assert.equal(cdif.serialize([1, "foo", true]), `[1., "foo", true]`);
@@ -80,7 +79,7 @@ suite("Serialize", (): void => {
 
 	{
 		const cdif: CDIF = cdifs.pretty;
-		test("Simple structures (pretty)", (): void => {
+		test("simple structures (pretty)", (): void => {
 			assert.equal(cdif.serialize([]), `[]`);
 			assert.equal(cdif.serialize({}), `{}`);
 			assert.equal(cdif.serialize([1, "foo", true]), block(4, `
@@ -102,7 +101,7 @@ suite("Serialize", (): void => {
 
 	{
 		const cdif: CDIF = cdifs.default;
-		test("Preprocessors and types (default)", (): void => {
+		test("preprocessors and types (default)", (): void => {
 			assert.equal(cdif.serialize({
 				name: "Maddie",
 				coolUsername: "m4dd1e",
@@ -124,7 +123,7 @@ suite("Serialize", (): void => {
 
 	{
 		const cdif: CDIF = cdifs.pretty;
-		test("Preprocessors and types (pretty)", (): void => {
+		test("preprocessors and types (pretty)", (): void => {
 			assert.equal(cdif.serialize({
 				name: "Maddie",
 				coolUsername: "m4dd1e",
@@ -153,7 +152,8 @@ suite("Serialize", (): void => {
 		});
 	}
 
-	{
+	suite("error cases", (): void => {
+
 		const cdif: CDIF = new CDIF({cdifVersion: VER, serializer: {
 			preprocessors: [
 				({key, value}) => {
@@ -169,26 +169,44 @@ suite("Serialize", (): void => {
 			]
 		}});
 
-		test(`Error cases`, (): void => {
-			assert.throws(() => cdif.serialize(new CDIFInteger(42n, 2)), CDIFError); // CDIFPrimitiveValue wrong version
-			assert.throws(() => cdif.serialize(["PLEASE OMIT ME THANK YOU"]), CDIFError); // omit collection value
-			assert.throws(() => cdif.serialize({"uh oh spaces in key": "nope"}), CDIFSyntaxError); // bad obj key name
-			assert.throws(() => cdif.serialize({"badTypeName": {}}), CDIFSyntaxError); // bad type name
-			assert.throws(() => cdif.serialize(Symbol("uh oh symbol")), CDIFTypeError); // disallowed type
+		test("CDIFPrimitiveValue with wrong version", (): void => {
+			assert.throws(() => cdif.serialize(new CDIFInteger(42n, 2)), CDIFError);
 		});
-	}
 
-	{
+		test("cannot omit collection value", (): void => {
+			assert.throws(() => cdif.serialize(["PLEASE OMIT ME THANK YOU"]), CDIFError);
+		});
+
+		test("invalid object key name", (): void => {
+			assert.throws(() => cdif.serialize({"uh oh spaces in key": "nope"}), CDIFSyntaxError);
+		});
+
+		test("invalid type identifier", (): void => {
+			assert.throws(() => cdif.serialize({"badTypeName": {}}), CDIFSyntaxError);
+		});
+
+		test("invalid input type", (): void => {
+			assert.throws(() => cdif.serialize(Symbol("uh oh symbol")), CDIFTypeError);
+		});
+
+	});
+
+	suite("circular reference detection", (): void => {
+
 		const cdif: CDIF = cdifs.default;
-		test("Circular reference detection", (): void => {
-			const child = {a: 1};
-			cdif.serialize({a: child, b: child}); // should not throw (duplicate reference, but not circular)
 
+		test("duplicate reference, but not circular", (): void => {
+			const child = {a: 1};
+			cdif.serialize({a: child, b: child});
+		});
+
+		test("circular reference", (): void => {
 			let circular: {a: unknown} = {a: null};
 			circular.a = circular;
 			assert.throws(() => cdif.serialize(circular), CDIFTypeError);
 		});
-	}
+
+	});
 
 	{
 		const cdif: CDIF = new CDIF({cdifVersion: VER, serializer: {
@@ -197,7 +215,7 @@ suite("Serialize", (): void => {
 			addFinalStructureEntrySeparator: true
 		}});
 
-		test("Weird options and miscellanea", (): void => {
+		test("weird options and miscellanea", (): void => {
 			assert.equal(cdif.serialize({
 				x: 1,
 				coolUsername: "not_that_cool",
