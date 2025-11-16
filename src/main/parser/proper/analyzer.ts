@@ -3,9 +3,9 @@
 import {throwInExpr} from "@mkacct/ts-util";
 import sw from "@mkacct/ts-util/switch";
 import {CDIFSyntaxError} from "../../errors.js";
-import {Token, TokenID, TokenLike} from "../tokenizer.js";
+import {Token, TokenId, TokenLike} from "../tokenizer.js";
 
-export enum ASTNodeID {
+export enum ASTNodeId {
 	LITERAL,
 	OBJECT,
 	OBJECT_ENTRY,
@@ -15,39 +15,39 @@ export enum ASTNodeID {
 }
 
 interface ASTNode {
-	readonly id: ASTNodeID;
+	readonly id: ASTNodeId;
 }
 
 export type ASTValue = ASTLiteral | ASTStructure | ASTComponentReference;
 
 export interface ASTLiteral extends ASTNode {
-	readonly id: ASTNodeID.LITERAL;
+	readonly id: ASTNodeId.LITERAL;
 	readonly cdifText: string;
 }
 
-interface ASTStructureBase<I extends ASTNodeID, E extends ASTNode> extends ASTNode {
+interface ASTStructureBase<I extends ASTNodeId, E extends ASTNode> extends ASTNode {
 	readonly id: I;
 	readonly typeName?: string;
 	readonly contents: ReadonlyArray<E | ASTSpreadReference>;
 }
 
 export type ASTStructure = ASTObject | ASTCollection;
-export type ASTObject = ASTStructureBase<ASTNodeID.OBJECT, ASTObjectEntry>;
-export type ASTCollection = ASTStructureBase<ASTNodeID.COLLECTION, ASTValue>;
+export type ASTObject = ASTStructureBase<ASTNodeId.OBJECT, ASTObjectEntry>;
+export type ASTCollection = ASTStructureBase<ASTNodeId.COLLECTION, ASTValue>;
 
 export interface ASTObjectEntry extends ASTNode {
-	readonly id: ASTNodeID.OBJECT_ENTRY;
+	readonly id: ASTNodeId.OBJECT_ENTRY;
 	readonly key: string;
 	readonly value: ASTValue;
 }
 
-interface ASTComponentRefBase<I extends ASTNodeID> extends ASTNode {
+interface ASTComponentRefBase<I extends ASTNodeId> extends ASTNode {
 	readonly id: I;
 	readonly componentName: string;
 }
 
-export type ASTComponentReference = ASTComponentRefBase<ASTNodeID.COMPONENT_REFERENCE>;
-export type ASTSpreadReference = ASTComponentRefBase<ASTNodeID.SPREAD_REFERENCE>;
+export type ASTComponentReference = ASTComponentRefBase<ASTNodeId.COMPONENT_REFERENCE>;
+export type ASTSpreadReference = ASTComponentRefBase<ASTNodeId.SPREAD_REFERENCE>;
 
 class TokenReader {
 	static readonly #dummyToken: TokenLike<null> = {
@@ -64,7 +64,7 @@ class TokenReader {
 
 	public isValid(): boolean {return this.#index in this.#tokens;}
 
-	public get(): TokenLike<TokenID | null> {
+	public get(): TokenLike<TokenId | null> {
 		return this.isValid() ? this.#tokens[this.#index] : TokenReader.#dummyToken;
 	}
 
@@ -73,7 +73,7 @@ class TokenReader {
 	}
 }
 
-function tokenToErrStr(token: TokenLike<TokenID | null>): string {
+function tokenToErrStr(token: TokenLike<TokenId | null>): string {
 	return (token.id === null) ? `end of input` : `"${token.cdifText}"`;
 }
 
@@ -85,14 +85,14 @@ function tokenToErrStr(token: TokenLike<TokenID | null>): string {
 export default function createSectionSyntaxTree(tokens: ReadonlyArray<Token>): ASTValue {
 	const reader: TokenReader = new TokenReader(tokens);
 	const value: ASTValue = parseValue(reader);
-	if (reader.get().id === TokenID.VALUE_TERMINATOR) {reader.next();}
+	if (reader.get().id === TokenId.VALUE_TERMINATOR) {reader.next();}
 	if (reader.isValid()) {throw new CDIFSyntaxError(`Unexpected token after section: ${tokenToErrStr(reader.get())}`);}
 	return value;
 }
 
 function commonErrorCases(
-	token: TokenLike<TokenID | null>, contextName: string
-): ReadonlyArray<readonly [TokenID | null | typeof sw.DEFAULT, (value: TokenID | null) => never]> {
+	token: TokenLike<TokenId | null>, contextName: string
+): ReadonlyArray<readonly [TokenId | null | typeof sw.DEFAULT, (value: TokenId | null) => never]> {
 	return [
 		[null, () => {throw new CDIFSyntaxError(`Unexpected end of input in ${contextName}`);}],
 		[sw.DEFAULT, () => {throw new CDIFSyntaxError(`Unexpected token in ${contextName}: ${tokenToErrStr(token)}`);}]
@@ -100,8 +100,8 @@ function commonErrorCases(
 }
 
 function parseValue(reader: TokenReader): ASTValue {
-	return sw<TokenID | null, ASTValue>(reader.get().id, [
-		[TokenID.NAME, () => {
+	return sw<TokenId | null, ASTValue>(reader.get().id, [
+		[TokenId.NAME, () => {
 			try {
 				return parseLiteral(reader);
 			} catch (err) {
@@ -112,10 +112,10 @@ function parseValue(reader: TokenReader): ASTValue {
 				} else {throw err;}
 			}
 		}],
-		[TokenID.OTHER_LITERAL, () => parseLiteral(reader)],
-		[TokenID.OBJECT_START, () => parseStructure(reader)],
-		[TokenID.COLLECTION_START, () => parseStructure(reader)],
-		[TokenID.COMPONENT_REFERENCE, () => parseComponentRef(reader)],
+		[TokenId.OTHER_LITERAL, () => parseLiteral(reader)],
+		[TokenId.OBJECT_START, () => parseStructure(reader)],
+		[TokenId.COLLECTION_START, () => parseStructure(reader)],
+		[TokenId.COMPONENT_REFERENCE, () => parseComponentRef(reader)],
 		...commonErrorCases(reader.get(), "value")
 	]);
 }
@@ -123,45 +123,45 @@ function parseValue(reader: TokenReader): ASTValue {
 function parseLiteral(reader: TokenReader): ASTLiteral {
 	function yieldLiteral(): ASTLiteral {
 		const res: ASTLiteral = {
-			id: ASTNodeID.LITERAL,
+			id: ASTNodeId.LITERAL,
 			cdifText: reader.get().cdifText
 		};
 		reader.next();
 		return res;
 	}
 
-	return sw<TokenID | null, ASTLiteral>(reader.get().id, [
-		[TokenID.NAME, () => {
+	return sw<TokenId | null, ASTLiteral>(reader.get().id, [
+		[TokenId.NAME, () => {
 			if (["true", "false", "null"].includes(reader.get().cdifText)) {
 				return yieldLiteral();
 			}
 			throw new CDIFSyntaxError(`Invalid keyword literal: ${tokenToErrStr(reader.get())}`);
 		}],
-		[TokenID.OTHER_LITERAL, () => yieldLiteral()],
+		[TokenId.OTHER_LITERAL, () => yieldLiteral()],
 		...commonErrorCases(reader.get(), "literal"),
 	]);
 }
 
 function parseStructure(reader: TokenReader, typeName?: string): ASTStructure {
-	return sw<TokenID | null, ASTStructure>(reader.get().id, [
-		[TokenID.OBJECT_START, () => parseObject(reader, typeName)],
-		[TokenID.COLLECTION_START, () => parseCollection(reader, typeName)],
+	return sw<TokenId | null, ASTStructure>(reader.get().id, [
+		[TokenId.OBJECT_START, () => parseObject(reader, typeName)],
+		[TokenId.COLLECTION_START, () => parseCollection(reader, typeName)],
 		...commonErrorCases(reader.get(), "structure")
 	]);
 }
 
 const parseObject: (reader: TokenReader, typeName?: string) => ASTObject = createStructureParser(
-	"object", ASTNodeID.OBJECT, TokenID.OBJECT_START, TokenID.OBJECT_END, parseObjectMapping
+	"object", ASTNodeId.OBJECT, TokenId.OBJECT_START, TokenId.OBJECT_END, parseObjectMapping
 );
 const parseCollection: (reader: TokenReader, typeName?: string) => ASTCollection = createStructureParser(
-	"collection", ASTNodeID.COLLECTION, TokenID.COLLECTION_START, TokenID.COLLECTION_END, parseValue
+	"collection", ASTNodeId.COLLECTION, TokenId.COLLECTION_START, TokenId.COLLECTION_END, parseValue
 );
 
-function createStructureParser<I extends ASTNodeID, E extends ASTNode>(
+function createStructureParser<I extends ASTNodeId, E extends ASTNode>(
 	contextName: string,
 	nodeId: I,
-	startTokenId: TokenID,
-	endTokenId: TokenID,
+	startTokenId: TokenId,
+	endTokenId: TokenId,
 	entryParser: (reader: TokenReader) => (E | null)
 ) {
 	return (reader: TokenReader, typeName?: string): ASTStructureBase<I, E> => {
@@ -171,8 +171,8 @@ function createStructureParser<I extends ASTNodeID, E extends ASTNode>(
 		let done: boolean = false;
 		let entryNext: boolean = true;
 		while (!done) {
-			sw<TokenID | null, void>(reader.get().id, [
-				[TokenID.VALUE_TERMINATOR, () => {
+			sw<TokenId | null, void>(reader.get().id, [
+				[TokenId.VALUE_TERMINATOR, () => {
 					if (entryNext) {
 						throw new CDIFSyntaxError(`Unexpected value separator in ${contextName}`);
 					} else {
@@ -184,7 +184,7 @@ function createStructureParser<I extends ASTNodeID, E extends ASTNode>(
 					reader.next();
 					done = true;
 				}],
-				[TokenID.SPREAD_OPERATOR, () => {
+				[TokenId.SPREAD_OPERATOR, () => {
 					contents.push(parseSpreadRef(reader));
 					entryNext = false;
 				}],
@@ -208,47 +208,47 @@ function createStructureParser<I extends ASTNodeID, E extends ASTNode>(
 }
 
 function parseObjectMapping(reader: TokenReader): ASTObjectEntry | null {
-	assertTokenId(reader.get(), TokenID.NAME, "name");
+	assertTokenId(reader.get(), TokenId.NAME, "name");
 	const key: string = reader.get().cdifText;
 	reader.next();
-	assertTokenId(reader.get(), TokenID.KV_SEPARATOR, "object mapping separator");
+	assertTokenId(reader.get(), TokenId.KV_SEPARATOR, "object mapping separator");
 	reader.next();
-	if ((reader.get().id === TokenID.NAME) && (reader.get().cdifText === "undef")) {
+	if ((reader.get().id === TokenId.NAME) && (reader.get().cdifText === "undef")) {
 		reader.next();
 		return null;
 	}
 	const value: ASTValue = parseValue(reader);
 	return {
-		id: ASTNodeID.OBJECT_ENTRY,
+		id: ASTNodeId.OBJECT_ENTRY,
 		key: key,
 		value: value
 	};
 }
 
 function parseComponentRef(reader: TokenReader): ASTComponentReference {
-	assertTokenId(reader.get(), TokenID.COMPONENT_REFERENCE, "component reference");
+	assertTokenId(reader.get(), TokenId.COMPONENT_REFERENCE, "component reference");
 	if (!reader.get().cdifText.startsWith("$")) {
 		throw new CDIFSyntaxError(`Invalid component reference: ${tokenToErrStr(reader.get())}`);
 	}
 	const componentName: string = reader.get().cdifText.slice(1);
 	reader.next();
 	return {
-		id: ASTNodeID.COMPONENT_REFERENCE,
+		id: ASTNodeId.COMPONENT_REFERENCE,
 		componentName: componentName
 	};
 }
 
 function parseSpreadRef(reader: TokenReader): ASTSpreadReference {
-	assertTokenId(reader.get(), TokenID.SPREAD_OPERATOR, "spread operator");
+	assertTokenId(reader.get(), TokenId.SPREAD_OPERATOR, "spread operator");
 	reader.next();
 	return {
-		id: ASTNodeID.SPREAD_REFERENCE,
+		id: ASTNodeId.SPREAD_REFERENCE,
 		componentName: parseComponentRef(reader).componentName
 	};
 }
 
-function assertTokenId<I extends TokenID>(
-	token: TokenLike<TokenID | null>, expectedId: I, expectedName: string
+function assertTokenId<I extends TokenId>(
+	token: TokenLike<TokenId | null>, expectedId: I, expectedName: string
 ): asserts token is TokenLike<I> {
 	if (token.id !== expectedId) {
 		throw new CDIFSyntaxError(`Expected ${expectedName}, got ${tokenToErrStr(token)}`);

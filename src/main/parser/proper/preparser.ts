@@ -4,8 +4,8 @@ import sw from "@mkacct/ts-util/switch";
 import {CDIFDirectiveError, CDIFSyntaxError} from "../../errors.js";
 import {validateCdifVersionString} from "../../general.js";
 import {ParserOptions} from "../../options.js";
-import {Token, TokenID} from "../tokenizer.js";
-import {SectionID} from "./parser.js";
+import {Token, TokenId} from "../tokenizer.js";
+import {SectionId} from "./parser.js";
 
 /**
  * Handles directives and splits the file into sections.
@@ -22,12 +22,12 @@ export default function handleDirectives(
 	tokens: ReadonlyArray<Token>,
 	options: Required<ParserOptions>,
 	cdifVersion: number
-): Map<SectionID, ReadonlyArray<Token>> {
-	const sectionTokens: Map<SectionID, ReadonlyArray<Token>> = new Map();
+): Map<SectionId, ReadonlyArray<Token>> {
+	const sectionTokens: Map<SectionId, ReadonlyArray<Token>> = new Map();
 	let curSection: Token[] = [];
 
-	function startSection(id: SectionID): void {
-		if (sectionTokens.has(id)) {throw new CDIFDirectiveError(`Cannot begin section ${SectionID[id]} again`);}
+	function startSection(id: SectionId): void {
+		if (sectionTokens.has(id)) {throw new CDIFDirectiveError(`Cannot begin section ${SectionId[id]} again`);}
 		curSection = [];
 		sectionTokens.set(id, curSection);
 	}
@@ -45,13 +45,13 @@ export default function handleDirectives(
 				} else {throw err;}
 			}
 		},
-		"components": () => {startSection(SectionID.COMPONENTS);}
+		"components": () => {startSection(SectionId.COMPONENTS);}
 	};
 
-	startSection(SectionID.MAIN);
+	startSection(SectionId.MAIN);
 
 	for (const [i, token] of tokens.entries()) {
-		if (token.id === TokenID.DIRECTIVE) {
+		if (token.id === TokenId.DIRECTIVE) {
 			const match = token.cdifText.match(/^#\s*(?<name>\S+)\s*(?<arg>.*)$/us);
 			if (!match) {throw new CDIFSyntaxError(`Invalid directive syntax: "${token.cdifText}"`);}
 			const groups = match.groups as {name: string, arg: string};

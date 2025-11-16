@@ -3,14 +3,14 @@
 import {isValue} from "@mkacct/ts-util";
 import {CDIFSyntaxError} from "../errors.js";
 
-export type Token = TokenLike<TokenID>;
+export type Token = TokenLike<TokenId>;
 
 export interface TokenLike<T> {
 	readonly id: T;
 	readonly cdifText: string;
 }
 
-export enum TokenID {
+export enum TokenId {
 	DIRECTIVE,
 	NAME,
 	OTHER_LITERAL,
@@ -42,7 +42,7 @@ export default function tokenizeCdifFile(cdifText: string): Token[] {
 	return tokens;
 }
 
-function isToken(token: TokenLike<TokenID | null>): token is Token {
+function isToken(token: TokenLike<TokenId | null>): token is Token {
 	return isValue(token.id);
 }
 
@@ -55,32 +55,32 @@ function preprocessWhitespace(text: string): string {
 const CHAR_ENTITY_REGEX = /(?:[^\p{C}\\]|\t)|\\(?:[^\p{C}uU]|u[\da-fA-F]{4}|U[\da-fA-F]{8})/yus;
 const ML_CHAR_ENTITY_REGEX = /(?:[^\p{C}\\]|\t|\n)|\\(?:[^\p{C}uU]|u[\da-fA-F]{4}|U[\da-fA-F]{8}|\n)/yus
 
-function nextTokenization(text: string, index: number): TokenLike<TokenID | null> {
+function nextTokenization(text: string, index: number): TokenLike<TokenId | null> {
 	return tokenizerSwitch(text, index, [ // use flags /yus on all regexes!
-		{regex: /^#[^\n]*$/yusm, type: TokenID.DIRECTIVE}, // /m so we can use ^ and $ to ensure match of whole line
-		{regex: /,|;/yus, type: TokenID.VALUE_TERMINATOR},
-		{regex: /\{/yus, type: TokenID.OBJECT_START},
-		{regex: /\}/yus, type: TokenID.OBJECT_END},
-		{regex: /\[/yus, type: TokenID.COLLECTION_START},
-		{regex: /\]/yus, type: TokenID.COLLECTION_END},
-		{regex: /:/yus, type: TokenID.KV_SEPARATOR},
-		{regex: /\.\.\./yus, type: TokenID.SPREAD_OPERATOR},
+		{regex: /^#[^\n]*$/yusm, type: TokenId.DIRECTIVE}, // /m so we can use ^ and $ to ensure match of whole line
+		{regex: /,|;/yus, type: TokenId.VALUE_TERMINATOR},
+		{regex: /\{/yus, type: TokenId.OBJECT_START},
+		{regex: /\}/yus, type: TokenId.OBJECT_END},
+		{regex: /\[/yus, type: TokenId.COLLECTION_START},
+		{regex: /\]/yus, type: TokenId.COLLECTION_END},
+		{regex: /:/yus, type: TokenId.KV_SEPARATOR},
+		{regex: /\.\.\./yus, type: TokenId.SPREAD_OPERATOR},
 		{regex: /[^\S\n]+\n?|\n/yus, type: null}, // whitespace (up to and including newline)
 		{regex: /\/\/[^\n\r]*\n/yus, type: null}, // line comment
 		{regex: /\/\*.*?\*\//yus, type: null}, // block comment
-		{regex: /[\p{L}_][\p{L}\d$_]*/yus, type: TokenID.NAME},
-		{regex: /\$[\p{L}_][\p{L}\d$_]*/yus, type: TokenID.COMPONENT_REFERENCE},
+		{regex: /[\p{L}_][\p{L}\d$_]*/yus, type: TokenId.NAME},
+		{regex: /\$[\p{L}_][\p{L}\d$_]*/yus, type: TokenId.COMPONENT_REFERENCE},
 		// number types are crudely validated (the primitive value decoder validates them for real later)
 		// float before integer to ensure part before dot isn't tokenized as integer
-		{regex: /[+-]?infinity/yus, type: TokenID.OTHER_LITERAL}, // infinity that NAME doesn't match (because sign)
-		{regex: /[+-]?(?:\d[\d_]*)?\.[\d_]*(?:[eE][+-]?[\d_]*)?/yus, type: TokenID.OTHER_LITERAL}, // float
-		{regex: /[+-]?(?:0[\da-zA-Z_]*|\d[\d_]*)/yus, type: TokenID.OTHER_LITERAL}, // integer
+		{regex: /[+-]?infinity/yus, type: TokenId.OTHER_LITERAL}, // infinity that NAME doesn't match (because sign)
+		{regex: /[+-]?(?:\d[\d_]*)?\.[\d_]*(?:[eE][+-]?[\d_]*)?/yus, type: TokenId.OTHER_LITERAL}, // float
+		{regex: /[+-]?(?:0[\da-zA-Z_]*|\d[\d_]*)/yus, type: TokenId.OTHER_LITERAL}, // integer
 		// text types, block string before normal strings because their delimiters should take precedence
-		{delimiterRegex: /'/yus, entityRegex: CHAR_ENTITY_REGEX, type: TokenID.OTHER_LITERAL},
-		{delimiterRegex: /`{3,}/yus, entityRegex: /[\P{C}\t\n]/yus, isString: true, type: TokenID.OTHER_LITERAL},
-		{delimiterRegex: /"{3,}/yus, entityRegex: ML_CHAR_ENTITY_REGEX, isString: true, type: TokenID.OTHER_LITERAL},
-		{delimiterRegex: /`/yus, entityRegex: /[\P{C}\t]/yus, isString: true, type: TokenID.OTHER_LITERAL},
-		{delimiterRegex: /"/yus, entityRegex: CHAR_ENTITY_REGEX, isString: true, type: TokenID.OTHER_LITERAL},
+		{delimiterRegex: /'/yus, entityRegex: CHAR_ENTITY_REGEX, type: TokenId.OTHER_LITERAL},
+		{delimiterRegex: /`{3,}/yus, entityRegex: /[\P{C}\t\n]/yus, isString: true, type: TokenId.OTHER_LITERAL},
+		{delimiterRegex: /"{3,}/yus, entityRegex: ML_CHAR_ENTITY_REGEX, isString: true, type: TokenId.OTHER_LITERAL},
+		{delimiterRegex: /`/yus, entityRegex: /[\P{C}\t]/yus, isString: true, type: TokenId.OTHER_LITERAL},
+		{delimiterRegex: /"/yus, entityRegex: CHAR_ENTITY_REGEX, isString: true, type: TokenId.OTHER_LITERAL},
 	], () => {
 		throw new CDIFSyntaxError(`Unknown token (index ${index}; character '${text[index]}')`);
 	});
@@ -95,9 +95,9 @@ function tokenizerSwitch(
 			readonly entityRegex: RegExp;
 			readonly isString?: true;
 		}
-	) & {type: TokenID | null;}>,
+	) & {type: TokenId | null;}>,
 	errorCase: () => never
-): TokenLike<TokenID | null> {
+): TokenLike<TokenId | null> {
 	for (const entry of cases) {
 		const matchText: string | null = ("delimiterRegex" in entry)
 			? tryTextLiteralTokenizerCase(text, entry.delimiterRegex, entry.entityRegex, entry.isString ?? false, index)

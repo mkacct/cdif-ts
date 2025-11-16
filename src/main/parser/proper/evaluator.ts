@@ -4,7 +4,7 @@ import {CDIFReferenceError, CDIFTypeError} from "../../errors.js";
 import {CDIFValue} from "../../general.js";
 import {createPrimVal} from "../../primitive-value.js";
 import CDIFStructure, {CDIFCollection, CDIFObject} from "../../structure.js";
-import {ASTNodeID, ASTSpreadReference, ASTValue} from "./analyzer.js";
+import {ASTNodeId, ASTSpreadReference, ASTValue} from "./analyzer.js";
 
 /**
  * @param node main section AST node
@@ -24,13 +24,13 @@ export default function evaluateAstValue(
 	componentRefs: Set<string> = new Set<string>()
 ): CDIFValue {
 	switch (node.id) {
-		case ASTNodeID.LITERAL: {return createPrimVal(node.cdifText, cdifVersion);}
-		case ASTNodeID.OBJECT: {
+		case ASTNodeId.LITERAL: {return createPrimVal(node.cdifText, cdifVersion);}
+		case ASTNodeId.OBJECT: {
 			const data: Map<string, CDIFValue> = new Map();
 			for (const entry of node.contents) {
-				if (entry.id === ASTNodeID.SPREAD_REFERENCE) {
+				if (entry.id === ASTNodeId.SPREAD_REFERENCE) {
 					const spreadObject: CDIFObject = resolveSpread(entry,
-						"object", ASTNodeID.OBJECT, (v): v is CDIFObject => v instanceof CDIFObject
+						"object", ASTNodeId.OBJECT, (v): v is CDIFObject => v instanceof CDIFObject
 					);
 					for (const [key, value] of spreadObject.data) {
 						data.set(key, value);
@@ -41,12 +41,12 @@ export default function evaluateAstValue(
 			}
 			return new CDIFObject(data, node.typeName);
 		}
-		case ASTNodeID.COLLECTION: {
+		case ASTNodeId.COLLECTION: {
 			const data: CDIFValue[] = [];
 			for (const entry of node.contents) {
-				if (entry.id === ASTNodeID.SPREAD_REFERENCE) {
+				if (entry.id === ASTNodeId.SPREAD_REFERENCE) {
 					const spreadCollection: CDIFCollection = resolveSpread(entry,
-						"collection", ASTNodeID.COLLECTION, (v): v is CDIFCollection => v instanceof CDIFCollection
+						"collection", ASTNodeId.COLLECTION, (v): v is CDIFCollection => v instanceof CDIFCollection
 					);
 					for (const value of spreadCollection.data) {
 						data.push(value);
@@ -57,7 +57,7 @@ export default function evaluateAstValue(
 			}
 			return new CDIFCollection(data, node.typeName);
 		}
-		case ASTNodeID.COMPONENT_REFERENCE: {return resolveComponent(node.componentName);}
+		case ASTNodeId.COMPONENT_REFERENCE: {return resolveComponent(node.componentName);}
 	}
 
 	function resolveComponent(componentName: string, validateRefNode?: (refNode: ASTValue) => void): CDIFValue {
@@ -76,7 +76,7 @@ export default function evaluateAstValue(
 	function resolveSpread<V extends CDIFStructure>(
 		entry: ASTSpreadReference,
 		contextName: string,
-		nodeId: ASTNodeID,
+		nodeId: ASTNodeId,
 		isOfExpectedType: (value: CDIFValue) => value is V
 	): V {
 		const spreadStructure: CDIFValue = resolveComponent(entry.componentName, (refNode: ASTValue) => {
