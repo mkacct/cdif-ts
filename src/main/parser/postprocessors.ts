@@ -18,6 +18,7 @@ export function postprocessType(
 	if (!ss.is(fn, struct_ParserPostprocessorFunction)) {
 		throw new TypeError(`fn must be a ParserPostprocessorFunction`);
 	}
+
 	return ({key, type: actualType, value}) => {
 		if (actualType === type) {
 			return fn({key, type: actualType, value});

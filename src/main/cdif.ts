@@ -33,6 +33,7 @@ export default class CDIF { // The package's default export (exported as default
 	 */
 	public constructor(cdifVersion?: number) {
 		if (!ss.is(cdifVersion, ss.optional(ss.number()))) {throw new TypeError(`cdifVersion must be a number`);}
+
 		this.#cdifVersion = parseCdifVersion(cdifVersion);
 	}
 
@@ -54,6 +55,7 @@ export default class CDIF { // The package's default export (exported as default
 		if (!ss.is(parserOptions, ss.optional(struct_ParserOptions))) {
 			throw new TypeError(`parserOptions must be a valid ParserOptions object`);
 		}
+
 		return runParser(cdifText, this.#cdifVersion, parserOptions ?? {});
 	}
 
@@ -73,6 +75,7 @@ export default class CDIF { // The package's default export (exported as default
 		if (!ss.is(serializerOptions, ss.optional(struct_SerializerOptions))) {
 			throw new TypeError(`serializerOptions must be a valid SerializerOptions object`);
 		}
+
 		return runSerializer(value, this.#cdifVersion, serializerOptions ?? {});
 	}
 
@@ -97,6 +100,7 @@ export default class CDIF { // The package's default export (exported as default
 		if (!ss.is(fileOptions, ss.optional(struct_FileOptions))) {
 			throw new TypeError(`fileOptions must be a valid FileOptions object`);
 		}
+
 		return runSerializer(value, this.#cdifVersion, serializerOptions ?? {}, fileOptions ?? {});
 	}
 
@@ -107,6 +111,7 @@ export default class CDIF { // The package's default export (exported as default
 	 */
 	public createPrimitiveValue(cdifText: string): CDIFPrimitiveValue {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
+
 		return createPrimVal(cdifText, this.#cdifVersion);
 	}
 
@@ -117,6 +122,7 @@ export default class CDIF { // The package's default export (exported as default
 	 */
 	public static getCdifVersion(cdifText: string): number | undefined {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
+
 		const match = cdifText.split("\n", 1)[0].trimEnd().match(/^#\s*cDIF\s*(.*)$/us);
 		if (!match) {return undefined;}
 		try {

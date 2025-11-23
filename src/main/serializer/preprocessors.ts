@@ -14,6 +14,7 @@ import {SerializerPreprocessorFunction} from "./encoder.js";
  */
 export function filterObjectProperties(names: ReadonlyArray<string>): SerializerPreprocessorFunction {
 	if (!ss.is(names, ssx.readonlyArray(ss.string()))) {throw new TypeError(`names must be an array of strings`);}
+
 	return ({key}) => {
 		if ((typeof key === "string") && !names.includes(key)) {
 			return CDIF.OMIT_PROPERTY;
@@ -52,7 +53,10 @@ export function assignType(
 	}) => boolean
 ): SerializerPreprocessorFunction {
 	if (!ss.is(type, ss.string())) {throw new TypeError(`type must be a string`);}
-	if (!ss.is(condition, ssx.defineFunc("condition", 1))) {throw new TypeError(`condition must be a 1-argument function`);}
+	if (!ss.is(condition, ssx.defineFunc("condition", 1))) {
+		throw new TypeError(`condition must be a 1-argument function`);
+	}
+
 	return ({key, value}) => {
 		if (isObject(value) && condition({key, value})) {
 			return {type, value};
