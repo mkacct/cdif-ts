@@ -7,9 +7,9 @@ import CDIF from "../cdif.js";
 import {CDIFError, CDIFTypeError} from "../errors.js";
 import * as ssx from "../extensions/ss-util.js";
 import {CDIFValue, isObject} from "../general.js";
-import {SerializerOptions} from "../options.js";
 import CDIFPrimitiveValue, {CDIFBoolean, CDIFFloat, CDIFInfinite, CDIFInteger, CDIFNull, CDIFString} from "../primitive-value.js";
 import CDIFStructure, {CDIFCollection, CDIFObject} from "../structure.js";
+import {SerializerOptions} from "./serializer.js";
 
 /**
  * A function used to customize serialization behavior and/or add type names.

@@ -5,34 +5,36 @@ import {matrixStrategy} from "@mkacct/ts-util/tests";
 import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
+import {SerializerOptions} from "../../../main/serializer/serializer.js";
 import {reverseRecord} from "../../test-util.js";
 import {VER} from "../context.js";
 
 suite("v1 CDIF.serializeFile()", (): void => {
 
-	const cdifs: Record<string, CDIF> = {
-		default: new CDIF({cdifVersion: VER}),
-		pretty: new CDIF({cdifVersion: VER, serializer: {
+	const cdif = new CDIF(VER);
+
+	const optionsObjs: Record<string, SerializerOptions> = {
+		default: {},
+		pretty: {
 			indent: "\t",
 			structureEntrySeparator: ";"
-		}})
+		}
 	};
 
-	const cdifNames: Map<CDIF, string> = reverseRecord(cdifs);
+	const optionsNames: Map<SerializerOptions, string> = reverseRecord(optionsObjs);
 
-	matrixStrategy({cdif: Object.values(cdifs)}, (matrix): void => {
-		const cdif: CDIF = matrix.cdif;
-		suite(`primitive value (${cdifNames.get(matrix.cdif)})`, (): void => {
+	matrixStrategy({options: Object.values(optionsObjs)}, (matrix): void => {
+		suite(`primitive value (${optionsNames.get(matrix.options)})`, (): void => {
 
 			test("default", (): void => {
-				assert.equal(cdif.serializeFile(42), block(5, `
+				assert.equal(cdif.serializeFile(42, matrix.options), block(5, `
 					42.
 
 				`));
 			});
 
 			test("final semicolon", (): void => {
-				assert.equal(cdif.serializeFile(42, {
+				assert.equal(cdif.serializeFile(42, matrix.options, {
 					addFinalSemicolon: true
 				}), block(5, `
 					42.;
@@ -41,7 +43,7 @@ suite("v1 CDIF.serializeFile()", (): void => {
 			});
 
 			test("\"cDIF\" directive", (): void => {
-				assert.equal(cdif.serializeFile(42, {
+				assert.equal(cdif.serializeFile(42, matrix.options, {
 					cdifVersionString: "1.0.2",
 					addFinalSemicolon: true
 				}), block(5, `
@@ -56,17 +58,15 @@ suite("v1 CDIF.serializeFile()", (): void => {
 
 	suite("structure (default)", (): void => {
 
-		const cdif: CDIF = cdifs.default;
-
 		test("default", (): void => {
-			assert.equal(cdif.serializeFile([1, 2, 3]), block(4, `
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.default), block(4, `
 				[1., 2., 3.]
 
 			`));
 		});
 
 		test("final semicolon", (): void => {
-			assert.equal(cdif.serializeFile([1, 2, 3], {
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.default, {
 				addFinalSemicolon: true
 			}), block(4, `
 				[1., 2., 3.];
@@ -75,7 +75,7 @@ suite("v1 CDIF.serializeFile()", (): void => {
 		});
 
 		test("\"cDIF\" directive", (): void => {
-			assert.equal(cdif.serializeFile([1, 2, 3], {
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.default, {
 				cdifVersionString: "1.0.2",
 				addFinalSemicolon: true
 			}), block(4, `
@@ -89,10 +89,8 @@ suite("v1 CDIF.serializeFile()", (): void => {
 
 	suite("structure (pretty)", (): void => {
 
-		const cdif: CDIF = cdifs.pretty;
-
 		test("default", (): void => {
-			assert.equal(cdif.serializeFile([1, 2, 3]), block(4, `
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.pretty), block(4, `
 				[
 					1.;
 					2.;
@@ -103,7 +101,7 @@ suite("v1 CDIF.serializeFile()", (): void => {
 		});
 
 		test("final semicolon", (): void => {
-			assert.equal(cdif.serializeFile([1, 2, 3], {
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.pretty, {
 				addFinalSemicolon: true
 			}), block(4, `
 				[
@@ -116,7 +114,7 @@ suite("v1 CDIF.serializeFile()", (): void => {
 		});
 
 		test("\"cDIF\" directive", (): void => {
-			assert.equal(cdif.serializeFile([1, 2, 3], {
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.pretty, {
 				cdifVersionString: "1.0.2",
 				addFinalSemicolon: true
 			}), block(4, `
@@ -134,17 +132,15 @@ suite("v1 CDIF.serializeFile()", (): void => {
 
 	suite("version number validation", (): void => {
 
-		const cdif: CDIF = cdifs.default;
-
 		test("same major version", (): void => {
-			assert.equal(cdif.serializeFile(null, {
+			assert.equal(cdif.serializeFile(null, optionsObjs.default, {
 				cdifVersionString: "1.0.2"
 			}), block(4, `
 				# cDIF 1.0.2
 				null
 
 			`));
-			assert.equal(cdif.serializeFile(null, {
+			assert.equal(cdif.serializeFile(null, optionsObjs.default, {
 				cdifVersionString: "1.1"
 			}), block(4, `
 				# cDIF 1.1
@@ -154,19 +150,19 @@ suite("v1 CDIF.serializeFile()", (): void => {
 		});
 
 		test("wrong major version", (): void => {
-			assert.throws(() => cdif.serializeFile(null, {
+			assert.throws(() => cdif.serializeFile(null, optionsObjs.default, {
 				cdifVersionString: "2.0"
 			}), Error);
 		});
 
 		test("invalid version string", (): void => {
-			assert.throws(() => cdif.serializeFile(null, {
+			assert.throws(() => cdif.serializeFile(null, optionsObjs.default, {
 				cdifVersionString: "foo"
 			}), Error);
 		});
 
 		test("allowing unexpected version", (): void => {
-			assert.equal(cdif.serializeFile(null, {
+			assert.equal(cdif.serializeFile(null, optionsObjs.default, {
 				cdifVersionString: "2.0",
 				allowUnexpectedVersionString: true
 			}), block(4, `
@@ -174,7 +170,7 @@ suite("v1 CDIF.serializeFile()", (): void => {
 				null
 
 			`));
-			assert.equal(cdif.serializeFile(null, {
+			assert.equal(cdif.serializeFile(null, optionsObjs.default, {
 				cdifVersionString: "foo",
 				allowUnexpectedVersionString: true
 			}), block(4, `

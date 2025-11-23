@@ -5,30 +5,12 @@ import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
 import {CDIFDirectiveError, CDIFReferenceError, CDIFSyntaxError, CDIFTypeError} from "../../../main/errors.js";
+import {ParserOptions} from "../../../main/parser/parser.js";
 import {VER} from "../context.js";
 
 suite("v1 CDIF.parse()", (): void => {
 
-	const cdif: CDIF = new CDIF({cdifVersion: VER, parser: {
-		postprocessors: [
-			({type, value}) => {
-				if (type === "Color") {
-					if (
-						("red" in value) && (typeof value.red === "number")
-						&& ("green" in value) && (typeof value.green === "number")
-						&& ("blue" in value) && (typeof value.blue === "number")
-					) {
-						return {value: "#"
-							+ value.red.toString(16).padStart(2, "0")
-							+ value.green.toString(16).padStart(2, "0")
-							+ value.blue.toString(16).padStart(2, "0")
-						};
-					}
-					throw new Error(`bad color!!!`);
-				}
-			}
-		]
-	}});
+	const cdif: CDIF = new CDIF(VER);
 
 	test("simple primitive", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
@@ -105,6 +87,27 @@ suite("v1 CDIF.parse()", (): void => {
 		]);
 	});
 
+	const optionsWithColorPostprocessor: ParserOptions = {
+		postprocessors: [
+			({type, value}) => {
+				if (type === "Color") {
+					if (
+						("red" in value) && (typeof value.red === "number")
+						&& ("green" in value) && (typeof value.green === "number")
+						&& ("blue" in value) && (typeof value.blue === "number")
+					) {
+						return {value: "#"
+							+ value.red.toString(16).padStart(2, "0")
+							+ value.green.toString(16).padStart(2, "0")
+							+ value.blue.toString(16).padStart(2, "0")
+						};
+					}
+					throw new Error(`bad color!!!`);
+				}
+			}
+		]
+	};
+
 	test("object behaviors", (): void => {
 		assert.deepEqual(cdif.parse(block(3, `
 			{
@@ -114,12 +117,12 @@ suite("v1 CDIF.parse()", (): void => {
 				color: Color {red: 255, green: 51, blue: 152};
 				untypedColor: {red: 255, green: 51, blue: 152};
 			}
-		`)), {
+		`), optionsWithColorPostprocessor), {
 			foo: "one",
 			baz: "two",
 			color: "#ff3398",
 			untypedColor: {red: 255, green: 51, blue: 152}
-		});
+		},);
 	});
 
 	test("one-line concise values", (): void => {
@@ -127,7 +130,7 @@ suite("v1 CDIF.parse()", (): void => {
 			Thing{foo:12,bar:0o11,baz:+1.2e-1,idk:undef,qux:[true,{a:$a},...$items,],color:Color{red:1,green:2,blue:3}}
 			# components
 			{a:3,items:['c';"asdf";"""1"2"3""";\`"\`]}
-		`)), {
+		`), optionsWithColorPostprocessor), {
 			foo: 12,
 			bar: 9,
 			baz: 0.12,
@@ -167,7 +170,7 @@ suite("v1 CDIF.parse()", (): void => {
 				specialItem: "cake";
 				maxByte: 255;
 			};
-		`)), {
+		`), optionsWithColorPostprocessor), {
 			name: "Maddie",
 			displayColor: "#ff3399",
 			items: ["hat", "phone", "wallet", "keys", "cake"],

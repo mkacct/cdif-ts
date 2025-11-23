@@ -4,11 +4,11 @@
 import {isValue} from "@mkacct/ts-util";
 import {CDIFSyntaxError} from "../../errors.js";
 import {CDIFValue} from "../../general.js";
-import {ParserOptions} from "../../options.js";
 import {Token} from "../tokenizer.js";
 import createSectionSyntaxTree, {ASTNodeId, ASTObject, ASTValue} from "./analyzer.js";
 import evaluateAstValue from "./evaluator.js";
 import handleDirectives from "./preparser.js";
+import {ParserOptions} from "../parser.js";
 
 export enum SectionId {
 	MAIN,

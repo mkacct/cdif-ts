@@ -4,8 +4,9 @@ import {isValue} from "@mkacct/ts-util";
 import {CDIFSyntaxError} from "./errors.js";
 import {CDIFValue} from "./general.js";
 import {isValidName, isValidTypeId} from "./identifiers.js";
-import {ParserOptions, SerializerOptions} from "./options.js";
 import decodeCdifValue from "./parser/decoder.js";
+import {ParserOptions} from "./parser/parser.js";
+import {SerializerOptions} from "./serializer/serializer.js";
 import {PrettyTextWriter, writeCdifValueText} from "./serializer/stringifier.js";
 
 /**

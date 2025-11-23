@@ -3,9 +3,9 @@
 import sw from "@mkacct/ts-util/switch";
 import {CDIFDirectiveError, CDIFSyntaxError} from "../../errors.js";
 import {validateCdifVersionString} from "../../general.js";
-import {ParserOptions} from "../../options.js";
+import {ParserOptions} from "../parser.js";
 import {Token, TokenId} from "../tokenizer.js";
-import {SectionId} from "./parser.js";
+import {SectionId} from "./parser-proper.js";
 
 /**
  * Handles directives and splits the file into sections.

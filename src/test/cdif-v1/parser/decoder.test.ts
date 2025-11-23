@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import test, {suite} from "node:test";
 import CDIF from "../../../main/cdif.js";
 import {CDIFValue} from "../../../main/general.js";
-import {parseParserOptions, ParserOptions} from "../../../main/options.js";
 import decodeCdifValue, {ParserPostprocessorFunction} from "../../../main/parser/decoder.js";
+import {parseParserOptions, ParserOptions} from "../../../main/parser/parser.js";
 import {
 	CDIFBoolean,
 	CDIFCharacter,

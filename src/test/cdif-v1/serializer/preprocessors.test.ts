@@ -11,17 +11,24 @@ import {
 	useIntegers,
 	usePreprocessMethods
 } from "../../../main/serializer/preprocessors.js";
+import {SerializerOptions} from "../../../main/serializer/serializer.js";
 import {VER} from "../context.js";
 
 suite("v1 preprocessors", (): void => {
 
+	const cdif = new CDIF(VER);
+
+	const generalOptions: SerializerOptions = {
+		indent: "\t",
+		structureEntrySeparator: ";"
+	};
+
 	suite("filterObjectProperties()", (): void => {
 
-		const cdif = new CDIF({cdifVersion: VER, serializer: {
-			preprocessors: [filterObjectProperties(["foo", "bar", "baz"])],
-			indent: "\t",
-			structureEntrySeparator: ";"
-		}});
+		const options: SerializerOptions = {
+			...generalOptions,
+			preprocessors: [filterObjectProperties(["foo", "bar", "baz"])]
+		};
 
 		test("deep", (): void => {
 			assert.equal(cdif.serialize({
@@ -33,7 +40,7 @@ suite("v1 preprocessors", (): void => {
 					baz: "yes too"
 				},
 				qux: "nope"
-			}), block(4, `
+			}, options), block(4, `
 				{
 					foo: "a";
 					bar: [
@@ -53,18 +60,17 @@ suite("v1 preprocessors", (): void => {
 
 	suite("useIntegers()", (): void => {
 
-		const cdif = new CDIF({cdifVersion: VER, serializer: {
-			preprocessors: [useIntegers()],
-			indent: "\t",
-			structureEntrySeparator: ";"
-		}});
+		const options: SerializerOptions = {
+			...generalOptions,
+			preprocessors: [useIntegers()]
+		};
 
 		test("numbers with fractional part unaffected", (): void => {
-			assert.equal(cdif.serialize(42.125), `42.125`);
+			assert.equal(cdif.serialize(42.125, options), `42.125`);
 		});
 
 		test("integers serialized as such", (): void => {
-			assert.equal(cdif.serialize(42), `42`);
+			assert.equal(cdif.serialize(42, options), `42`);
 		});
 
 		test("deep, with BigInt example", (): void => {
@@ -73,7 +79,7 @@ suite("v1 preprocessors", (): void => {
 				b: 2.5,
 				c: 3n,
 				d: [1, 2, 3]
-			}), block(4, `
+			}, options), block(4, `
 				{
 					a: 1;
 					b: 2.5;
@@ -91,7 +97,8 @@ suite("v1 preprocessors", (): void => {
 
 	suite("assignType()", (): void => {
 
-		const cdif = new CDIF({cdifVersion: VER, serializer: {
+		const options: SerializerOptions = {
+			...generalOptions,
 			preprocessors: [
 				assignType("Foo", ({key}) => {
 					return key === "foo";
@@ -99,15 +106,13 @@ suite("v1 preprocessors", (): void => {
 				assignType("Bar", ({value}) => {
 					return "bar" in value;
 				})
-			],
-			indent: "\t",
-			structureEntrySeparator: ";"
-		}});
+			]
+		};
 
 		test("primitives unaffected (they cannot have types)", (): void => {
 			assert.equal(cdif.serialize({
 				foo: 1
-			}), block(4, `
+			}, options), block(4, `
 				{
 					foo: 1.;
 				}
@@ -117,7 +122,7 @@ suite("v1 preprocessors", (): void => {
 		test("structures typed correctly", (): void => {
 			assert.equal(cdif.serialize({
 				foo: [1, 2]
-			}), block(4, `
+			}, options), block(4, `
 				{
 					foo: Foo [
 						1.;
@@ -133,7 +138,7 @@ suite("v1 preprocessors", (): void => {
 				other: {
 					foo: "nope"
 				}
-			}), block(4, `
+			}, options), block(4, `
 				{
 					thing: Bar {
 						bar: "asdf";
@@ -150,11 +155,10 @@ suite("v1 preprocessors", (): void => {
 
 	suite("usePreprocessMethods()", (): void => {
 
-		const cdif = new CDIF({cdifVersion: VER, serializer: {
+		const options: SerializerOptions = {
+			...generalOptions,
 			preprocessors: [usePreprocessMethods()],
-			indent: "\t",
-			structureEntrySeparator: ";"
-		}});
+		};
 
 		class NumberPlusTwoBox {
 			readonly #value: number;
@@ -191,7 +195,7 @@ suite("v1 preprocessors", (): void => {
 				foo: new NumberPlusTwoBox(3),
 				bar: new Person("Maddie"),
 				baz: new Person("Jim")
-			}), block(4, `
+			}, options), block(4, `
 				{
 					normalObj: {
 						a: 1.;

@@ -5,9 +5,9 @@ import {Describe} from "superstruct";
 import CDIF from "../cdif.js";
 import * as ssx from "../extensions/ss-util.js";
 import {CDIFValue} from "../general.js";
-import {ParserOptions} from "../options.js";
 import CDIFPrimitiveValue from "../primitive-value.js";
 import CDIFStructure from "../structure.js";
+import {ParserOptions} from "./parser.js";
 
 /**
  * A function used to customize parsing behavior, ex. to create objects of the correct type.

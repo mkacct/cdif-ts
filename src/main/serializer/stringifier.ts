@@ -2,8 +2,8 @@
 
 import {isValue} from "@mkacct/ts-util";
 import {CDIFValue} from "../general.js";
-import {SerializerOptions} from "../options.js";
 import CDIFPrimitiveValue from "../primitive-value.js";
+import {SerializerOptions} from "./serializer.js";
 
 /**
  * @param value

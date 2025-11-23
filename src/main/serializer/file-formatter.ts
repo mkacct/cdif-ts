@@ -9,7 +9,7 @@ import {validateCdifVersionString} from "../general.js";
 export interface FileOptions {
 	/**
 	 * Whether to prepend the "cDIF" directive at the start of the file
-	 * (defaults to `true` iff `cdifVersionString` is provided)
+	 * (defaults to `true` iff `cdifVersionString` is supplied)
 	 */
 	readonly addHeader?: boolean;
 	/**

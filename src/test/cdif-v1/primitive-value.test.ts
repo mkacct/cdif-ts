@@ -10,7 +10,7 @@ suite("v1 CDIFPrimitiveValue", (): void => {
 
 	const VER: number = 1;
 
-	const cdif: CDIF = new CDIF({cdifVersion: VER});
+	const cdif: CDIF = new CDIF(VER);
 
 	suite("nonsense", (): void => {
 
