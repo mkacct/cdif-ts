@@ -136,6 +136,11 @@ export default class CDIF { // The package's default export (exported as default
 
 }
 
+/**
+ * @param cdifVersion
+ * @returns `cdifVersion` or latest version if not supplied
+ * @throws {RangeError} if `cdifVersion` is invalid
+ */
 function parseCdifVersion(cdifVersion?: number) : number {
 	if (!isValue(cdifVersion)) {return CDIF_LATEST;}
 	if (((cdifVersion % 1) !== 0) || (cdifVersion < 0)) {
