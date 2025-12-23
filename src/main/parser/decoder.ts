@@ -13,7 +13,7 @@ import {ParserOptions} from "./parser.js";
  * A function used to customize parsing behavior, ex. to create objects of the correct type.
  * @note return `{value: unknown}` to replace the value, `CDIF.OMIT_PROPERTY` to omit the property, or void to try the next preprocessor
  */
-export interface ParserPostprocessorFunction {
+export interface ParserPostprocessorFunction { // Exported by main.ts
 	(data: {
 		/** The key of the property being postprocessed (or `null` for the root value) */
 		key: null | string | number;

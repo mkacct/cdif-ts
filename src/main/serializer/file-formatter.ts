@@ -6,7 +6,10 @@ import * as ss from "superstruct";
 import {Describe} from "superstruct";
 import {validateCdifVersionString} from "../general.js";
 
-export interface FileOptions {
+/**
+ * Configuration options for the file formatter
+ */
+export interface FileOptions { // Exported by main.ts
 	/**
 	 * Whether to prepend the "cDIF" directive at the start of the file
 	 * (defaults to `true` iff `cdifVersionString` is supplied)

@@ -15,7 +15,7 @@ import {SerializerOptions} from "./serializer.js";
  * A function used to customize serialization behavior and/or add type names.
  * @note return `{value: unknown, type?: string}` (`type` is only allowed if `value` is an object) to replace the value and/or add a type name, `CDIF.OMIT_PROPERTY` to omit the property, or void to try the next preprocessor
  */
-export interface SerializerPreprocessorFunction {
+export interface SerializerPreprocessorFunction { // Exported by main.ts
 	(data: {
 		/** The key of the property being preprocessed (or `null` for the root value) */
 		key: null | string | number;

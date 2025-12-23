@@ -9,7 +9,10 @@ import encodeCdifValue, {SerializerPreprocessorFunction, struct_SerializerPrepro
 import formatCdifFile, {FileOptions} from "./file-formatter.js";
 import stringifyCdifValue from "./stringifier.js";
 
-export interface SerializerOptions {
+/**
+ * Configuration options for the serializer
+ */
+export interface SerializerOptions { // Exported by main.ts
 	/**
 	 * In strict mode, the serializer will throw an error if a value cannot be serialized;
 	 * in non-strict mode, the value will be omitted or replaced with null

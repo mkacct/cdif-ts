@@ -9,7 +9,10 @@ import decodeCdifValue, {ParserPostprocessorFunction, struct_ParserPostprocessor
 import parseCdifTokens from "./proper/parser-proper.js";
 import tokenizeCdifFile, {Token} from "./tokenizer.js";
 
-export interface ParserOptions {
+/**
+ * Configuration options for the parser
+ */
+export interface ParserOptions { // Exported by main.ts
 	/**
 	 * If `true`, integer values will be parsed as `bigint`
 	 * to preserve precision of large integers
