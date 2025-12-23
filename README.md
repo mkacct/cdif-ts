@@ -14,20 +14,20 @@ npm install @mkacct/cdif
 
 The following examples demonstrate the most basic usage of this library. The behavior can be customized in many ways; please see the documentation for details.
 
-### Configuration
+### CDIF version
 
-The `CDIF` constructor takes one argument which allows you to customize the behavior of the parser and serializer. For example, you can use the `cdifVersion` property to indicate by which major version of the cDIF specification they should abide. (If it is omitted, the latest version will be assumed.)
-
-Check the documentation for all available [configuration options](https://github.com/mkacct/cdif-ts/wiki/Configuration).
+The `CDIF` constructor takes one optional argument, which is the major version of the cDIF specification by which it should abide. (If it is omitted, the latest version will be assumed.)
 
 ```typescript
 const cdif = new CDIF(); // defaults to latest version
-const cdif1 = new CDIF({cdifVersion: 1});
+const cdif1 = new CDIF(1);
 ```
 
 ### Parsing
 
 `CDIF.parse()` can be used to parse any cDIF text (with or without `#` directives).
+
+An optional second argument (not shown in the example) may be supplied to configure the parser; check the documentation for all available [parser configuration options](https://github.com/mkacct/cdif-ts/wiki/Configuration%3A-Parser).
 
 ```typescript
 const cdif = new CDIF();
@@ -37,20 +37,21 @@ const value: unknown = cdif.parse(cdifText); // JS value
 
 ### Serialization
 
-`CDIF.serialize()` returns a plain cDIF value (no `#` directives), while `CDIF.serializeFile()` allows you to add various file format elements to the output. (Check the documentation for all available [file formatter configuration options](https://github.com/mkacct/cdif-ts/wiki/Configuration-%28file-formatter%29).)
+`CDIF.serialize()` returns a plain cDIF value (no `#` directives), while `CDIF.serializeFile()` allows you to add various file format elements to the output. (Check the documentation for all available [file formatter configuration options](https://github.com/mkacct/cdif-ts/wiki/Configuration%3A-File-formatter).)
 
-While not strictly necessary, configuration options are used in this example to enable formatted ("pretty-printed") output.
+While not strictly necessary, configuration options are used in this example to enable formatted ("pretty-printed") output. They are supplied as an optional second argument to both `CDIF.serialize()` and `CDIF.serializeFile()`; check the documentation for all available [serializer configuration options](https://github.com/mkacct/cdif-ts/wiki/Configuration%3A-Serializer).
 
 ```typescript
-const cdif = new CDIF({serializer: {
+const cdif = new CDIF();
+const value: unknown = /* input JS value */;
+const serializerOptions: CDIFSerializerOptions = {
     indent: "\t", // or any other string (ex. "    "), or omit to output as one line
     structureEntrySeparator: ";" // or ","
-}});
-const value: unknown = /* input JS value */;
+};
 // For general use:
-const valueText: string = cdif.serialize(value); // cDIF value text
+const valueText: string = cdif.serialize(value, serializerOptions); // cDIF value text
 // For file output:
-const fileText: string = cdif.serializeFile(value, {
+const fileText: string = cdif.serializeFile(value, serializerOptions, {
     cdifVersionString: "1.0.2"
 }); // cDIF file text (includes initial "cDIF" directive)
 ```
