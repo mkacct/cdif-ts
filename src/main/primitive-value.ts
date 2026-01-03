@@ -450,7 +450,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 			} else {
 				const oldCommonIndent = commonIndent;
 				commonIndent = "";
-				for (let i = 0; i < oldCommonIndent.length && i < indent.length; i++) {
+				for (let i: number = 0; i < oldCommonIndent.length && i < indent.length; i++) {
 					if (oldCommonIndent[i] === indent[i]) {
 						commonIndent += indent[i];
 					} else {
@@ -461,7 +461,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 			if (commonIndent.length === 0) {return;} // end early; there won't be any common indent
 		}
 		if (!isValue(commonIndent)) {return;} // there were no non-empty lines
-		for (let i = 0; i < lines.length; i++) { // strip common indent
+		for (let i: number = 0; i < lines.length; i++) { // strip common indent
 			if (lines[i].length === 0) {continue;} // skip empty lines
 			lines[i] = lines[i].slice(commonIndent.length);
 		}
