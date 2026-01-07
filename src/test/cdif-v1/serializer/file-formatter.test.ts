@@ -14,6 +14,9 @@ suite("v1 CDIF.serializeFile()", (): void => {
 	const cdif = new CDIF(VER);
 
 	const optionsObjs: Record<string, SerializerOptions> = {
+		mini: {
+			minify: true
+		},
 		default: {},
 		pretty: {
 			indent: "\t",
@@ -54,6 +57,37 @@ suite("v1 CDIF.serializeFile()", (): void => {
 			});
 
 		});
+	});
+
+	suite("structure (mini)", (): void => {
+
+		test("default", (): void => {
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.mini), block(4, `
+				[1.,2.,3.]
+
+			`));
+		});
+
+		test("final semicolon", (): void => {
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.mini, {
+				addFinalSemicolon: true
+			}), block(4, `
+				[1.,2.,3.];
+
+			`));
+		});
+
+		test("\"cDIF\" directive", (): void => {
+			assert.equal(cdif.serializeFile([1, 2, 3], optionsObjs.mini, {
+				cdifVersionString: "1.0.2",
+				addFinalSemicolon: true
+			}), block(4, `
+				# cDIF 1.0.2
+				[1.,2.,3.];
+
+			`));
+		});
+
 	});
 
 	suite("structure (default)", (): void => {

@@ -21,10 +21,15 @@ export interface SerializerOptions { // Exported by main.ts
 	readonly strict?: boolean;
 	/**
 	 * String to use to indent a level in the serialized cDIF text,
-	 * or `null` to output as one line
+	 * or `null` to output as one line (ignored if `minify` is `true`)
 	 * (defaults to `null`)
 	 */
 	readonly indent?: string | null;
+	/**
+	 * Whether to output as one line with no whitespace (overrides `indent`)
+	 * (defaults to `false`)
+	 */
+	readonly minify?: boolean;
 	/**
 	 * Separator between object or collection entries in the serialized cDIF text
 	 * (defaults to `","`)
@@ -81,6 +86,7 @@ export function parseSerializerOptions(serializerOptions: SerializerOptions): Re
 	return {
 		strict: serializerOptions.strict ?? true,
 		indent: serializerOptions.indent ?? null,
+		minify: serializerOptions.minify ?? false,
 		structureEntrySeparator: structureSep,
 		addFinalStructureEntrySeparator: serializerOptions.addFinalStructureEntrySeparator ?? (structureSep === ";"),
 		preprocessors: serializerOptions.preprocessors ?? []
@@ -92,6 +98,7 @@ export function parseSerializerOptions(serializerOptions: SerializerOptions): Re
 export const struct_SerializerOptions: Describe<SerializerOptions> = ss.object({
 	strict: ss.optional(ss.boolean()),
 	indent: ss.optional(ss.nullable(ss.string())),
+	minify: ss.optional(ss.boolean()),
 	structureEntrySeparator: ss.optional(ss.enums([",", ";"])),
 	addFinalStructureEntrySeparator: ss.optional(ss.boolean()),
 	preprocessors: ss.optional(ssx.readonlyArray(struct_SerializerPreprocessorFunction))

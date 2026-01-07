@@ -6,8 +6,7 @@ import {CDIFValue} from "./general.js";
 import {isValidName, isValidTypeId} from "./identifiers.js";
 import decodeCdifValue from "./parser/decoder.js";
 import {ParserOptions} from "./parser/parser.js";
-import {SerializerOptions} from "./serializer/serializer.js";
-import {PrettyTextWriter, writeCdifValueText} from "./serializer/stringifier.js";
+import {OutputTextWriter, writeCdifValueText} from "./serializer/stringifier.js";
 
 /**
  * Either a cDIF collection or object.
@@ -39,17 +38,22 @@ export default abstract class CDIFStructure {
 	 * @param writer
 	 * @param options
 	 */
-	public writeCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): void {
-		if (this.type) {writer.write(this.type + " ");}
-		writer.write(this.brackets[0], "", true);
-		writer.changeIndent(1);
-		const wrote: boolean = this.writeDataCdifText(writer, options);
-		if (!wrote) {writer.clearNextSeparator();}
-		writer.changeIndent(-1);
-		writer.write(this.brackets[1], "", false);
+	public writeCdifText(writer: OutputTextWriter): void {
+		if (this.type) {
+			writer.write(this.type);
+			writer.space();
+		}
+		if (this.isEmpty()) {
+			writer.write(this.brackets.join(""));
+		} else {
+			writer.openStructure(this.brackets[0]);
+			this.writeDataCdifText(writer);
+			writer.closeStructure(this.brackets[1]);
+		}
 	}
 
-	protected abstract writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean;
+	protected abstract isEmpty(): boolean;
+	protected abstract writeDataCdifText(writer: OutputTextWriter): void;
 
 }
 
@@ -76,14 +80,15 @@ export class CDIFCollection extends CDIFStructure {
 		return arr;
 	}
 
-	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean {
-		if (this.data.length === 0) {return false;}
+	protected isEmpty(): boolean {return this.data.length === 0;}
+
+	protected override writeDataCdifText(writer: OutputTextWriter): void {
+		if (this.data.length === 0) {return;}
 		for (const [i, value] of this.data.entries()) {
 			const isLast: boolean = i === this.data.length - 1;
-			writeCdifValueText(writer, value, options);
-			writeSeparator(writer, options, isLast);
+			writeCdifValueText(writer, value);
+			writer.endStructureEntry(isLast);
 		}
-		return true;
 	}
 
 }
@@ -116,23 +121,16 @@ export class CDIFObject extends CDIFStructure {
 		return Object.fromEntries(entries);
 	}
 
-	protected override writeDataCdifText(writer: PrettyTextWriter, options: Required<SerializerOptions>): boolean {
-		if (this.data.size === 0) {return false;}
+	protected isEmpty(): boolean {return this.data.size === 0;}
+
+	protected override writeDataCdifText(writer: OutputTextWriter): void {
 		for (const [i, [key, value]] of [...this.data.entries()].entries()) {
 			const isLast: boolean = i === this.data.size - 1;
-			writer.write(`${key}: `);
-			writeCdifValueText(writer, value, options);
-			writeSeparator(writer, options, isLast);
+			writer.write(`${key}:`);
+			writer.space();
+			writeCdifValueText(writer, value);
+			writer.endStructureEntry(isLast);
 		}
-		return true;
 	}
 
-}
-
-function writeSeparator(writer: PrettyTextWriter, options: Required<SerializerOptions>, isLast: boolean): void {
-	writer.write(
-		(!isLast || options.addFinalStructureEntrySeparator) ? options.structureEntrySeparator : "",
-		isLast ? "" : " ",
-		true
-	);
 }

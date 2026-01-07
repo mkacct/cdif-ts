@@ -12,37 +12,37 @@ import {SerializerOptions} from "./serializer.js";
  * @note this doesn't validate the cDIF version of any `CDIFPrimitiveValue`s in `value`; the encoder should've done that already
  */
 export default function stringifyCdifValue(value: CDIFValue, options: Required<SerializerOptions>): string {
-	const writer = new PrettyTextWriter(options.indent ?? undefined);
-	writeCdifValueText(writer, value, options);
+	let writer: OutputTextWriter;
+	if (options.minify) {
+		writer = new OutputTextWriter(options);
+	} else if (isValue(options.indent)) {
+		writer = new MultilineOutputTextWriter(options);
+	} else {
+		writer = new OneLineOutputTextWriter(options);
+	}
+	writeCdifValueText(writer, value);
 	return writer.text;
 }
 
-export function writeCdifValueText(
-	writer: PrettyTextWriter, value: CDIFValue, options: Required<SerializerOptions>
-): void {
+export function writeCdifValueText(writer: OutputTextWriter, value: CDIFValue): void {
 	if (value instanceof CDIFPrimitiveValue) {
 		writer.write(value.cdifText);
 	} else { // value instanceof CDIFStructure
-		value.writeCdifText(writer, options);
+		value.writeCdifText(writer);
 	}
 }
 
 /**
  * Used to generate code output with specific formatting options.
  */
-export class PrettyTextWriter {
+export class OutputTextWriter { // base OutputTextWriter works for minified output
+
+	protected readonly options: Required<SerializerOptions>;
 
 	readonly #strs: string[] = [];
 
-	readonly #isMultiline: boolean;
-	readonly #indent?: string;
-
-	#indentLevel: number = 0;
-	#nextSeparator: string = "";
-
-	public constructor(indent?: string) {
-		this.#isMultiline = isValue(indent);
-		this.#indent = indent;
+	public constructor(options: Required<SerializerOptions>) {
+		this.options = options;
 	}
 
 	/** The string built by this writer */
@@ -51,38 +51,115 @@ export class PrettyTextWriter {
 	/**
 	 * Append text to the resultant string.
 	 * @param text
-	 * @param oneLineSeparator follows `text` if this is a single-line string
-	 * @param isEOL whether to follow `text` with a newline if this is a multiline string
 	 */
-	public write(text: string = "", oneLineSeparator: string = "", isEOL: boolean = false): void {
-		if ((this.#strs.length > 0) && this.#nextSeparator) {
-			this.#strs.push(this.#nextSeparator);
+	public write(text: string) {
+		this.#strs.push(text);
+		this.afterWrite();
+	}
+
+	protected afterWrite(): void {}
+
+	protected undoLastWrite(): void {
+		this.#strs.pop();
+	}
+
+	/** Insert the appropriate whitespace. */
+	public space(): void {}
+
+	/**
+	 * Append opening bracket and appropriate whitespace.
+	 * @param bracket the opening bracket
+	 * @note if structure is empty, don't use these, just write brackets directly
+	 */
+	public openStructure(bracket: string): void {
+		this.write(bracket);
+		this.afterOpeningBracket();
+	}
+
+	/**
+	 * Append appropriate whitespace and closing bracket.
+	 * @param bracket the closing bracket
+	 * @note if structure is empty, don't use these, just write brackets directly
+	 */
+	public closeStructure(bracket: string): void {
+		this.beforeClosingBracket();
+		this.write(bracket);
+	}
+
+	protected afterOpeningBracket(): void {}
+	protected beforeClosingBracket(): void {}
+
+	/**
+	 * Append the separator and appropriate whitespace after a structure entry.
+	 * @param isLast whether this is the last entry of the structure
+	 */
+	public endStructureEntry(isLast: boolean): void {
+		if (!isLast || this.options.addFinalStructureEntrySeparator) {
+			this.write(this.options.structureEntrySeparator);
 		}
-		if (this.#isMultiline) {
-			if (this.#nextSeparator === "\n") {
-				this.#strs.push(this.#indent!.repeat(this.#indentLevel));
+		this.afterStructureEntry(isLast);
+	}
+
+	protected afterStructureEntry(_isLast: boolean): void {}
+
+}
+
+class OneLineOutputTextWriter extends OutputTextWriter {
+
+	public override space(): void {
+		this.write(" ");
+	}
+
+	protected override afterStructureEntry(isLast: boolean): void {
+		if (!isLast) {
+			this.space();
+		}
+	}
+
+}
+
+class MultilineOutputTextWriter extends OutputTextWriter {
+
+	readonly #indent: string;
+
+	#indentLevel: number = 0;
+	#didJustIndent: boolean = false;
+
+	public constructor(options: Required<SerializerOptions>) {
+		super(options);
+		this.#indent = options.indent ?? "";
+	}
+
+	protected override afterWrite(): void {
+		this.#didJustIndent = false;
+	}
+
+	public override space(): void {
+		this.write(" ");
+	}
+
+	protected override afterOpeningBracket(): void {
+		this.#indentLevel++;
+		this.newLine();
+	}
+
+	protected override beforeClosingBracket(): void {
+		if (this.#didJustIndent) {this.undoLastWrite();}
+		this.#indentLevel--;
+	}
+
+	protected override afterStructureEntry(_isLast: boolean): void {
+		this.newLine();
+	}
+
+	private newLine(): void {
+		this.write("\n");
+		if (this.#indentLevel > 0) {
+			for (let i: number = 0; i < this.#indentLevel; i++) {
+				this.write(this.#indent);
 			}
-			this.#nextSeparator = isEOL ? "\n" : "";
-		} else {
-			this.#nextSeparator = oneLineSeparator;
+			this.#didJustIndent = true;
 		}
-		if (text) {
-			this.#strs.push(text);
-		}
-	}
-
-	/**
-	 * Adjust the text indentation level by the given quantity.
-	 */
-	public changeIndent(by: number): void {
-		this.#indentLevel = Math.max(0, this.#indentLevel + by);
-	}
-
-	/**
-	 * Prevent the next write from adding a separator.
-	 */
-	public clearNextSeparator(): void {
-		this.#nextSeparator = "";
 	}
 
 }

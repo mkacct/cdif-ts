@@ -9,7 +9,7 @@ import {CDIFError, CDIFSyntaxError, CDIFTypeError} from "../../../main/errors.js
 import {CDIFCharacter, CDIFInteger, CDIFNull, CDIFString} from "../../../main/primitive-value.js";
 import {SerializerPreprocessorFunction} from "../../../main/serializer/encoder.js";
 import {SerializerOptions} from "../../../main/serializer/serializer.js";
-import {reverseRecord} from "../../test-util.js";
+import {oneLine, reverseRecord} from "../../test-util.js";
 import {VER} from "../context.js";
 
 suite("v1 CDIF.serialize()", (): void => {
@@ -40,6 +40,10 @@ suite("v1 CDIF.serialize()", (): void => {
 	];
 
 	const optionsObjs: Record<string, SerializerOptions> = {
+		mini: {
+			preprocessors: preprocessors,
+			minify: true
+		},
 		default: {
 			preprocessors: preprocessors
 		},
@@ -68,6 +72,13 @@ suite("v1 CDIF.serialize()", (): void => {
 		});
 	});
 
+	test("simple structures (mini)", (): void => {
+		assert.equal(cdif.serialize([], optionsObjs.mini), `[]`);
+		assert.equal(cdif.serialize({}, optionsObjs.mini), `{}`);
+		assert.equal(cdif.serialize([1, "foo", true], optionsObjs.mini), `[1.,"foo",true]`);
+		assert.equal(cdif.serialize({a: 1, b: "foo", c: true}, optionsObjs.mini), `{a:1.,b:"foo",c:true}`);
+	});
+
 	test("simple structures (default)", (): void => {
 		assert.equal(cdif.serialize([], optionsObjs.default), `[]`);
 		assert.equal(cdif.serialize({}, optionsObjs.default), `{}`);
@@ -91,6 +102,25 @@ suite("v1 CDIF.serialize()", (): void => {
 				b: "foo";
 				c: true;
 			}
+		`));
+	});
+
+	test("preprocessors and types (mini)", (): void => {
+		assert.equal(cdif.serialize({
+			name: "Maddie",
+			coolUsername: "m4dd1e",
+			color: {red: 255, green: 51, blue: 153},
+			items: ["egg", "fake \"bacon\""],
+			ignore_field: "ignore this!",
+			ignore_notReally: "don't ignore me",
+			examplePreencoded: new CDIFCharacter("a", VER)
+		}, optionsObjs.mini), oneLine(3, `
+			{name:"Maddie",
+			coolUsername:"Xx_m4dd1e_xX",
+			color:Color{red:255.,green:51.,blue:153.},
+			items:["egg","fake \\"bacon\\""],
+			ignore_notReally:"don't ignore me",
+			examplePreencoded:'a'}
 		`));
 	});
 
@@ -137,6 +167,38 @@ suite("v1 CDIF.serialize()", (): void => {
 				];
 				ignore_notReally: "don't ignore me";
 				examplePreencoded: 'a';
+			}
+		`));
+	});
+
+	test("empty structures (mini)", (): void => {
+		assert.equal(cdif.serialize({
+			color: {},
+			notColor: []
+		}, optionsObjs.mini), oneLine(3, `
+			{color:Color{},
+			notColor:[]}
+		`));
+	});
+
+	test("empty structures (default)", (): void => {
+		assert.equal(cdif.serialize({
+			color: {},
+			notColor: []
+		}, optionsObjs.default), fold(3, `
+			{color: Color {},
+			notColor: []}
+		`));
+	});
+
+	test("empty structures (pretty)", (): void => {
+		assert.equal(cdif.serialize({
+			color: {},
+			notColor: []
+		}, optionsObjs.pretty), block(3, `
+			{
+				color: Color {};
+				notColor: [];
 			}
 		`));
 	});
