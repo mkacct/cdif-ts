@@ -37,12 +37,12 @@ export function writeCdifValueText(writer: OutputTextWriter, value: CDIFValue): 
  */
 export class OutputTextWriter { // base OutputTextWriter works for minified output
 
-	protected readonly options: Required<SerializerOptions>;
+	readonly #options: Required<SerializerOptions>;
 
 	readonly #strs: string[] = [];
 
 	public constructor(options: Required<SerializerOptions>) {
-		this.options = options;
+		this.#options = options;
 	}
 
 	/** The string built by this writer */
@@ -94,8 +94,8 @@ export class OutputTextWriter { // base OutputTextWriter works for minified outp
 	 * @param isLast whether this is the last entry of the structure
 	 */
 	public endStructureEntry(isLast: boolean): void {
-		if (!isLast || this.options.addFinalStructureEntrySeparator) {
-			this.write(this.options.structureEntrySeparator);
+		if (!isLast || this.#options.addFinalStructureEntrySeparator) {
+			this.write(this.#options.structureEntrySeparator);
 		}
 		this.afterStructureEntry(isLast);
 	}
