@@ -10,8 +10,24 @@ suite("CDIF", (): void => {
 
 	suite("constructor", (): void => {
 
-		test("no options", (): void => {
+		test("default version", (): void => {
 			new CDIF();
+		});
+
+		test("version known", (): void => {
+			new CDIF(1);
+		});
+
+		test("version too low", (): void => {
+			assert.throws(() => {
+				new CDIF(0);
+			}, RangeError);
+		});
+
+		test("version too high", (): void => {
+			assert.throws(() => {
+				new CDIF(999999999);
+			}, RangeError);
 		});
 
 	});
