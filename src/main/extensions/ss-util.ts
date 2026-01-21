@@ -28,7 +28,11 @@ export function defineFunc<T extends Function>(name: string, length: number): St
  * Wraps Superstruct's `array()` but forces it to accept that the array should be treated as a TS `ReadonlyArray`.
  */
 export function readonlyArray<T extends Struct<any>>(element: T): Describe<ReadonlyArray<Infer<T>>>;
+/**
+ * Wraps Superstruct's `array()` but forces it to accept that the array should be treated as a TS `ReadonlyArray`.
+ */
 export function readonlyArray(): Describe<ReadonlyArray<unknown>>;
+
 export function readonlyArray<T extends Struct<any>>(element?: T): any {
 	return element ? ss.array(element) : ss.array();
 }
