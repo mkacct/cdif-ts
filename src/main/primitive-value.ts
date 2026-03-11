@@ -21,11 +21,8 @@ export default abstract class CDIFPrimitiveValue { // Exported by main.ts
 	/** The cDIF text representation of the primitive value */
 	public abstract get cdifText(): string;
 
-	/**
-	 * The parsed JS value
-	 * @note this is primarily used for the decoder; some behavior may be unexpected (ex. integers are returned as `bigint`)
-	 */
-	public abstract get parsed(): unknown;
+	/** @internal */
+	public abstract get _parsed(): unknown;
 
 }
 
@@ -96,7 +93,7 @@ export class CDIFInteger extends CDIFPrimitiveValue {
 		return this.#value.toString();
 	}
 
-	public override get parsed(): bigint {
+	public override get _parsed(): bigint {
 		return this.#value;
 	}
 
@@ -139,7 +136,7 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		}`;
 	}
 
-	public override get parsed(): number {
+	public override get _parsed(): number {
 		return parseFloat(`${this.#isNegative ? "-" : ""}${this.#significand}e${this.#exponent.toString()}`);
 	}
 
@@ -191,7 +188,7 @@ export class CDIFInfinite extends CDIFPrimitiveValue {
 		return `${this.#isNegative ? "-" : ""}infinity`;
 	}
 
-	public override get parsed(): number {
+	public override get _parsed(): number {
 		return (this.#isNegative ? -1 : 1) * Infinity;
 	}
 
@@ -302,7 +299,7 @@ export class CDIFCharacter extends CDIFPrimitiveValue {
 		return `'${this.#entity}'`;
 	}
 
-	public override get parsed(): string {
+	public override get _parsed(): string {
 		return parseCharEntity(this.#entity);
 	}
 
@@ -341,7 +338,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 		return `"${this.#entities.join("")}"`;
 	}
 
-	public override get parsed(): string {
+	public override get _parsed(): string {
 		return this.#entities.map((ent: string): string => parseCharEntity(ent)).join("");
 	}
 
@@ -491,7 +488,7 @@ export class CDIFBoolean extends CDIFPrimitiveValue {
 		return this.#value ? "true" : "false";
 	}
 
-	public override get parsed(): boolean {
+	public override get _parsed(): boolean {
 		return this.#value;
 	}
 
@@ -515,7 +512,7 @@ export class CDIFNull extends CDIFPrimitiveValue {
 		return "null";
 	}
 
-	public override get parsed(): null {
+	public override get _parsed(): null {
 		return null;
 	}
 
