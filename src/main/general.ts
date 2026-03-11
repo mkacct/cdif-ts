@@ -24,7 +24,7 @@ export function extractCdifMajorVersion(cdifVersionString: string): number {
 	if (!match) {
 		throw new RangeError(`Invalid cDIF version string "${cdifVersionString}"`);
 	}
-	return parseInt(match.groups!.major);
+	return parseInt(match.groups!.major!);
 }
 
 /**

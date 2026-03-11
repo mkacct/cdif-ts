@@ -77,9 +77,10 @@ class PrimitiveValueError extends Error {}
  * @returns `{isNegative, withoutSign}`
  */
 function checkSign(cdifText: string): {isNegative: boolean, withoutSign: string} {
+	const firstChar: string = cdifText[0] ?? "";
 	return {
-		isNegative: cdifText[0] === "-",
-		withoutSign: ["+", "-"].includes(cdifText[0]) ? cdifText.slice(1) : cdifText
+		isNegative: firstChar === "-",
+		withoutSign: ["+", "-"].includes(firstChar) ? cdifText.slice(1) : cdifText
 	};
 }
 
@@ -148,7 +149,7 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		if (between(parts.length, 1, 2)) {
 			return new CDIFFloat(
 				isNegative,
-				CDIFFloat.#parseSignificand(parts[0]),
+				CDIFFloat.#parseSignificand(parts[0]!),
 				(isValue(parts[1]) ? CDIFFloat.#parseExponent(parts[1]) : 0n),
 				cdifVersion
 			);
@@ -364,7 +365,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 	static #parseOneLineString(cdifText: string): string[] {
 		const match = cdifText.match(/^(?<quote>["`])(?<text>.*)\1$/us);
 		if (!match) {throw new PrimitiveValueError();}
-		const {quote, text} = match.groups!;
+		const {quote, text} = match.groups as {quote: string, text: string};
 		const isVerbatim: boolean = quote === "`";
 		const entities: string[] = CDIFString.#splitIntoEntities(text, isVerbatim, quote);
 		return entities;
@@ -373,7 +374,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 	static #parseBlockString(cdifText: string): string[] {
 		const match = cdifText.match(/^(?<delimiter>(?<quote>["`])\2{2,})(?<text>.*)\1$/us);
 		if (!match) {throw new CDIFString.#NotBlockStringError();}
-		const {quote, delimiter, text} = match.groups!;
+		const {quote, delimiter, text} = match.groups as {quote: string, delimiter: string, text: string};
 		const strippedText = CDIFString.#handleBlockStringWhitespace(text);
 		const isVerbatim: boolean = quote === "`";
 		let entities: string[] = CDIFString.#splitIntoEntities(strippedText, isVerbatim, delimiter);
@@ -399,7 +400,7 @@ export class CDIFString extends CDIFPrimitiveValue {
 			if (!isValue(char)) {break;}
 			if (escapeBuffer.length > 0) {
 				escapeBuffer.push(char);
-				if (escapeBuffer.length >= getEscapeSeqExpectedLength(escapeBuffer[1])) {
+				if (escapeBuffer.length >= getEscapeSeqExpectedLength(escapeBuffer[1]!)) {
 					entities.push(escapeBuffer.join(""));
 					escapeBuffer = [];
 				}
@@ -423,13 +424,13 @@ export class CDIFString extends CDIFPrimitiveValue {
 
 	static #handleBlockStringWhitespace(text: string): string {
 		const lines: string[] = text.split("\n");
-		if (lines.length === 1) {return lines[0];}
+		if (lines.length === 1) {return lines[0]!;}
 		let preservedFirstLine: string | null = null;
 		const firstLine = lines.shift()!;
 		if (!/^\s*$/us.test(firstLine)) {
 			preservedFirstLine = firstLine;
 		}
-		if (/^\s*$/us.test(lines[lines.length - 1])) {
+		if (/^\s*$/us.test(lines[lines.length - 1]!)) {
 			lines.pop();
 		}
 		CDIFString.#stripCommonIndentFromNonEmptyLines(lines);
@@ -462,8 +463,9 @@ export class CDIFString extends CDIFPrimitiveValue {
 		}
 		if (!isValue(commonIndent)) {return;} // there were no non-empty lines
 		for (let i: number = 0; i < lines.length; i++) { // strip common indent
-			if (lines[i].length === 0) {continue;} // skip empty lines
-			lines[i] = lines[i].slice(commonIndent.length);
+			const line: string = lines[i]!;
+			if (line.length === 0) {continue;} // skip empty lines
+			lines[i] = line.slice(commonIndent.length);
 		}
 	}
 

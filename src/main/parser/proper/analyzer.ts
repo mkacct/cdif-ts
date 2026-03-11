@@ -65,7 +65,7 @@ class TokenReader {
 	public isValid(): boolean {return this.#index in this.#tokens;}
 
 	public get(): TokenLike<TokenId | null> {
-		return this.isValid() ? this.#tokens[this.#index] : TokenReader.#dummyToken;
+		return this.#tokens[this.#index] ?? TokenReader.#dummyToken;
 	}
 
 	public next(): void {

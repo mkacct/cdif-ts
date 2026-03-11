@@ -123,10 +123,10 @@ export default class CDIF { // The package's default export (exported as default
 	public static getCdifVersion(cdifText: string): number | undefined {
 		if (!ss.is(cdifText, ss.string())) {throw new TypeError(`cdifText must be a string`);}
 
-		const match = cdifText.split("\n", 1)[0].trimEnd().match(/^#\s*cDIF\s*(.*)$/us);
+		const match = cdifText.split("\n", 1)[0]!.trimEnd().match(/^#\s*cDIF\s*(.*)$/us);
 		if (!match) {return undefined;}
 		try {
-			return extractCdifMajorVersion(match[1]);
+			return extractCdifMajorVersion(match[1]!);
 		} catch (err) {
 			if (err instanceof RangeError) {
 				throw new CDIFDirectiveError(err.message);
