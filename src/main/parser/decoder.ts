@@ -72,7 +72,7 @@ function decodeCdifPrimitiveValue(
 		// shouldn't happen in the decoder; its values are from the parser which is using the same version
 		throw new Error(`cDIF primitive value version mismatch (expected ${cdifVersion}, got ${value.cdifVersion})`);
 	}
-	let res: unknown = value._parsed;
+	let res: unknown = value._parse();
 	if (!options.useBigInt && (typeof res === "bigint")) {res = Number(res);}
 	return res;
 }

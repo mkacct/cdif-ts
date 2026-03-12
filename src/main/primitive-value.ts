@@ -22,7 +22,7 @@ export default abstract class CDIFPrimitiveValue { // Exported by main.ts
 	public abstract get cdifText(): string;
 
 	/** @internal */
-	public abstract get _parsed(): unknown;
+	public abstract _parse(): unknown;
 
 }
 
@@ -93,7 +93,8 @@ export class CDIFInteger extends CDIFPrimitiveValue {
 		return this.#value.toString();
 	}
 
-	public override get _parsed(): bigint {
+	/** @internal */
+	public override _parse(): bigint {
 		return this.#value;
 	}
 
@@ -136,7 +137,8 @@ export class CDIFFloat extends CDIFPrimitiveValue {
 		}`;
 	}
 
-	public override get _parsed(): number {
+	/** @internal */
+	public override _parse(): number {
 		return parseFloat(`${this.#isNegative ? "-" : ""}${this.#significand}e${this.#exponent.toString()}`);
 	}
 
@@ -188,7 +190,8 @@ export class CDIFInfinite extends CDIFPrimitiveValue {
 		return `${this.#isNegative ? "-" : ""}infinity`;
 	}
 
-	public override get _parsed(): number {
+	/** @internal */
+	public override _parse(): number {
 		return (this.#isNegative ? -1 : 1) * Infinity;
 	}
 
@@ -299,7 +302,8 @@ export class CDIFCharacter extends CDIFPrimitiveValue {
 		return `'${this.#entity}'`;
 	}
 
-	public override get _parsed(): string {
+	/** @internal */
+	public override _parse(): string {
 		return parseCharEntity(this.#entity);
 	}
 
@@ -338,7 +342,8 @@ export class CDIFString extends CDIFPrimitiveValue {
 		return `"${this.#entities.join("")}"`;
 	}
 
-	public override get _parsed(): string {
+	/** @internal */
+	public override _parse(): string {
 		return this.#entities.map((ent: string): string => parseCharEntity(ent)).join("");
 	}
 
@@ -488,7 +493,8 @@ export class CDIFBoolean extends CDIFPrimitiveValue {
 		return this.#value ? "true" : "false";
 	}
 
-	public override get _parsed(): boolean {
+	/** @internal */
+	public override _parse(): boolean {
 		return this.#value;
 	}
 
@@ -512,7 +518,8 @@ export class CDIFNull extends CDIFPrimitiveValue {
 		return "null";
 	}
 
-	public override get _parsed(): null {
+	/** @internal */
+	public override _parse(): null {
 		return null;
 	}
 
